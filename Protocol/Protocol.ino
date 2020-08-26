@@ -211,6 +211,7 @@ void loop() {
     dataset->SetData(but.state);
     dataset->Send();
     free(dataset);
+    delay(20);
   }
   if(digitalRead(butPin2) == LOW){ 
     but.Right();
@@ -218,6 +219,7 @@ void loop() {
     dataset->SetData(but.state);
     dataset->Send();
     free(dataset);
+    delay(20);
   }
 
  
