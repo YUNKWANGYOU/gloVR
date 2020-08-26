@@ -5,19 +5,25 @@ const int butPin1 = 6;
 const int butPin2 = 7;
 const int MPU=0x68;
 
-
-class DataSet{
-  private:
-    // 플렉스센서값, 자이로센서값, 영상처리 값 배열로 받자.
+// 플렉스센서값, 자이로센서값, 영상처리 값 배열로 받자.
     /*
     struct data{
+    //start bit, end bit, crc 공간 필요 
       uint16_t flex[5];
       uint16_t AcX,AcY,AcZ,Dummy,GyX,GyY,GyZ;
     };
     */
-     
-    // 테스트 - 버튼 데이터로만 테스트. 
-    
+
+// 테스트용(버튼) 
+struct data{
+        uint16_t but;
+};
+
+
+
+class DataSet{ 
+  private:
+    data *mydata = new data;
     
   public:
     void SetData(uint16_t but_value);
@@ -26,19 +32,17 @@ class DataSet{
 
 };
 
-void DataSet::SetData(uint16_t but_value){
-    struct data{
-        uint16_t but;
-    };
-    
-    data *mydata = new data;
+void DataSet::SetData(uint16_t but_value){ // 모든 센서데이터, 에러데이터, start bit, end bit 등을 한 구조체에넣는 메소드 
+   
     mydata->but = but_value;
 }
 
-void DataSet::Send()
+void DataSet::Send() // 묶어진 데이터 송신. 지금은 센서가없어서 프린트로 대신함. 
 {
   Serial.println("Data Send Complete!");
 }
+
+
 class Flex{
   private:
     uint16_t value[5];
