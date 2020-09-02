@@ -11,7 +11,9 @@ gloVR software
 
 # 1. 개요
 gloVR 협업을 위한 깃헙링크
-
+<div>
+  <img src = "https://user-images.githubusercontent.com/44994031/92015175-5cb7ae00-ed8b-11ea-8fcc-457e3322e03b.png" width = "400px" height = "400px">
+</div>
 
 # 2. 프로토콜
 
