@@ -1,28 +1,69 @@
 #include <Wire.h>
 #include <Servo.h>
 
+const int butPin1 = 6;
+const int butPin2 = 7;
+const int MPU=0x68;
+
+// 플렉스센서값, 자이로센서값, 영상처리 값 배열로 받자.
+    /*
+    struct data{
+    //start bit, end bit, crc 공간 필요 
+      uint16_t flex[5];
+      uint16_t AcX,AcY,AcZ,Dummy,GyX,GyY,GyZ;
+    };
+    */
+
+// 테스트용(버튼) 
+struct data{
+        uint16_t but;
+};
+
+
+
+class DataSet{ 
+  private:
+    data *mydata = new data;
+    
+  public:
+    void SetData(uint16_t but_value);
+    void Send();
+
+
+};
+
+void DataSet::SetData(uint16_t but_value){ // 모든 센서데이터, 에러데이터, start bit, end bit 등을 한 구조체에넣는 메소드 
+   
+    mydata->but = but_value;
+}
+
+void DataSet::Send() // 묶어진 데이터 송신. 지금은 센서가없어서 프린트로 대신함. 
+{
+  Serial.println("Data Send Complete!");
+}
+
+
 class Flex{
   private:
-    uint16_t value;
+    uint16_t value[5];
   public:
     void Receive(); // FlexSensor -> Arduino
     void Send(); // Arduino -> Unity
 
   Flex(){
-    uint16_t value[5] = { 0, 0, 0, 0, 0 };
   }
 
 };
 
-void Flex::Receive()
+void Flex::Receive() // FlexSensor -> Arduino
 {
   for(int i = 0 ; i < 5 ; i ++ )
   {
-    this->value[i] = analogRead(i); // Flex Sensor 값 업데이
+    this->value[i] = analogRead(i); 
   }
 }
 
-void Flex::Send()
+void Flex::Send() // Arduino -> Unity
 {
   for(int i = 0 ; i < 5 ; i++ )
   {
@@ -41,7 +82,7 @@ class Gyro{
     Gyro(){
       Wire.beginTransmission(MPU);
       Wire.write(0x3B);
-      Wire.endTransmission(flase);
+      Wire.endTransmission(false);
       Wire.requestFrom(MPU,14,true);
       AcX = 0;
       AcY = 0;
@@ -55,7 +96,7 @@ class Gyro{
     
 };
 
-void Gyro::Receive()
+void Gyro::Receive() // Gyro Sensor -> Arduino 
 {
   AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
   AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
@@ -65,12 +106,12 @@ void Gyro::Receive()
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
 }
-void Gyro::Send()
+void Gyro::Send() //Arduino -> Unity 
 {
   Serial.write(AcX);
   Serial.write(AcY);
   Serial.write(AcZ);
-  Serial.write(Tmp/340.00+36.53);  
+  Serial.write(Tmp/340+36);  
   Serial.write(GyX);
   Serial.write(GyY);
   Serial.write(GyZ);
@@ -81,7 +122,7 @@ class gloVR_Servo{
   private:
     uint16_t deg;
   public:
-    void ch_deg();
+    void ch_deg(); // 각도 바꾸는 함수 
 
     gloVR_Servo(){
       deg = 0;
@@ -89,58 +130,97 @@ class gloVR_Servo{
     }
 };
 
-void Survo::ch_deg() // 각도변
+void gloVR_Servo::ch_deg() // 각도 바꾸는 함수 
 {
-  this->servo.write(
-}
-
-class Data{
-  private:
-    // 플렉스센서값, 자이로센서값, 영상처리 값
-    int
-  public:
   
 }
+
 
 class SetArdToUni{
   private:
   public:
-
-  SetArdToUni(){
-    Serial.begin(9600);
-  }
+    SetArdToUni(){
+      Serial.begin(9600);
+    }
 };
 
+class But{
+  private:
+    
+  public:
+  
+    uint16_t state;
+    void Left();
+    void Right();
+    
+    But(){
+      pinMode(butPin1, INPUT);
+      pinMode(butPin2, INPUT);
+  
+      digitalWrite(butPin1,HIGH);
+      digitalWrite(butPin2,HIGH);
+    }
+};
+
+void But::Left(){
+  Serial.println("LEFT");
+  Serial.write(1);
+  this->state = 1;
+  Serial.flush();
+  delay(50);
+}
+
+void But::Right(){
+  Serial.println("RIGHT");
+  Serial.write(2);
+  this->state = 2;
+  Serial.flush();
+  delay(50);
+  
+}
+
 //플렉스센서, 자이로센서, 서보모터 객체 생성.
+/*
 Flex flex;
 Gyro gyro;
 Survo survo[5];
+*/
 
+// 버튼 객체 생성
+But but;
 void setup() {
   // put your setup code here, to run once:
   SetArdToUni setardtouni = SetArdToUni(); // 시리얼 통신 시작
   
   //플렉스센서, 자이로센서, 서보모터 객체들의 각 값들 초기화.
+/*
   flex = Flex();
   survo[5] = { Survo(), Survo(), Survo(), Survo(), Survo() };
   gyro = Gyro();
-  
- }
+*/
+
+  but = But();
+}
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-  /*bool option_degree;
-  int degree[5];
+  // 버튼 테스트 ( 아두이노 -> 유니티 ) 
+  if(digitalRead(butPin1) == LOW){
+    but.Left();
+    DataSet *dataset = (DataSet *)malloc(sizeof(DataSet));
+    dataset->SetData(but.state);
+    dataset->Send();
+    free(dataset);
+    delay(20);
+  }
+  if(digitalRead(butPin2) == LOW){ 
+    but.Right();
+    DataSet *dataset = (DataSet *)malloc(sizeof(DataSet));
+    dataset->SetData(but.state);
+    dataset->Send();
+    free(dataset);
+    delay(20);
+  }
 
-  if(option_degree == true)
-  { 
-    for(i = 0 ; i < 5 ; i++)
-    {
-      // 옵션에서 서보모터 값 입력받기.
-      degree = Serial.read
-      survo[i].degree = 
-    } 
-  }*/
-
+ 
 }
