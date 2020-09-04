@@ -36,8 +36,8 @@
 #define ZyroINT 12
 
 //Bluetooth module pin number
-#define BluetoothRxPin 3
-#define BluetoothTxPin 2
+#define BluetoothRxPin 2
+#define BluetoothTxPin 3
 
 //Survo motor pin number
 #define Survo1Pin 5
