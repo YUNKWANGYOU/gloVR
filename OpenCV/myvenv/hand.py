@@ -110,8 +110,8 @@ while (1):
         end = tuple(cnts[e][0])
         far = tuple(cnts[f][0])
         FarDefect.append(far)
-        cv2.line(frame, start, end, [0, 255, 0], 1)
-        cv2.circle(frame, far, 10, [100, 255, 255], 3)
+        #cv2.line(frame, start, end, [0, 255, 0], 1)
+        #cv2.circle(frame, far, 10, [100, 255, 255], 3)
 
     # Find moments of the largest contour
     moments = cv2.moments(cnts)
@@ -166,7 +166,7 @@ while (1):
             result = result + 1
 
     # Print number of pointed fingers
-    cv2.putText(frame, str(result), (100, 100), font, 2, (255, 255, 255), 2)
+    #cv2.putText(frame, str(result), (100, 100), font, 2, (255, 255, 255), 2)
 
     # show height raised fingers
     # cv2.putText(frame,'finger1',tuple(finger[0]),font,2,(255,255,255),2)
@@ -180,9 +180,9 @@ while (1):
 
     # Print bounding rectangle
     x, y, w, h = cv2.boundingRect(cnts)
-    img = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    #img = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    cv2.drawContours(frame, [hull], -1, (255, 255, 255), 2)
+    #cv2.drawContours(frame, [hull], -1, (255, 255, 255), 2)
 
     ##### Show final image ########
     cv2.imshow('Dilation', frame)
