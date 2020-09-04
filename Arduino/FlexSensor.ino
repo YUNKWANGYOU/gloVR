@@ -6,6 +6,19 @@ const int buttonPin02 = 7;
 const int ledPin01 = 9;
 const int FLEX_PIN = A0;
 
+//==============filter활용 변수=========//
+//low pass filter
+float flexvalue; 
+float filteredvalue;//필터값
+float alpha = 0.2; //민감도
+
+//moving average filter
+#define num 15
+int angle;
+int anglearray[num];
+int filteredangle;
+//====================================//
+
 SoftwareSerial mySerial(3,2);
 
 
@@ -97,11 +110,43 @@ void setup() {
   int i = 1;
   Serial.print("i % 2 == ");
   Serial.println(i%2);
+
+//==================================
+  flexvalue =  analogRead(FLEX_PIN);
+  filteredvalue = flexvalue;
+//================================== 
 }
 
 void loop() {
-//  uint16_t flexADC = (analogRead(FLEX_PIN) - 800);
-  uint16_t flexADC = analogRead(FLEX_PIN);
+   //uint16_t flexADC = (analogRead(FLEX_PIN) - 800);
+
+//========================================================================================
+  //low pass filter로 센서값 필터링
+  flexvalue = analogRead(A0);
+  filteredvalue = filteredvalue * (1 - alpha) + flexvalue * alpha; //필터 계산식
+  delay(10);
+  /*Serial.println(filteredvalue);
+  Serial.print(",");*/
+  //Serial.println(flexvalue);
+
+  //각도 범위 지정 (50~110 degree)
+ angle = map((int)filteredvalue%100,18, 23, 50, 120); //각도로 변환
+  angle *= -1;
+  angle += 160;
+  if(angle <= 50) angle = 50;
+  else if (angle >= 110) angle = 110;
+
+  //moving average filter로 각도값 필터링
+  for(int i = 0; i<num-1; i++){
+    anglearray[i] = anglearray[i+1];
+  }
+  anglearray[num -1] = angle;
+  for(int i = 0; i<num-1; i++){
+    filteredangle += anglearray[i];
+  }
+  filteredangle /= num;
+  uint16_t flexADC = filteredangle; // 최종값 저장
+//==========================================================================================
   Serial.print("flexData : ");
   Serial.println(flexADC);
   char * data = (char*)&flexADC;
