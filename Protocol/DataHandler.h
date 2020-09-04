@@ -1,4 +1,5 @@
 #include <SoftwareSerial.h>
+#include <Servo.h>
 
 // 자이로
 // INT -> D12
@@ -64,6 +65,9 @@ class DataHandler{
     //bluetooth module
     SoftwareSerial mySerial(BluetoothRxPin,BluetoothTxPin);
 
+    //servo motor array
+    Servo servoArr[5];
+
     public:
 
     // 초기화하기
@@ -75,7 +79,7 @@ class DataHandler{
     //데이터 송신시 사용하는 메소드
     char getFlexData(int * intArr);
     char getZyroData(int * intArr);
-    char setAllSendData(int * intArr);
+    char checkAllSendData(int * intArr);
     bool sendData();
 
     //데이터 수신시 사용하는 메소드
