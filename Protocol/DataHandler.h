@@ -20,29 +20,31 @@
 // 5 -> D11
 
 // 블루투스
-// RX -> TX
-// TX -> RX
+// RX -> D2
+// TX -> D3
 
 //FlexSensor pin number
-#define Flex1Pin 0;
-#define Flex2Pin 3;
-#define Flex3Pin 4;
-#define Flex4Pin 5;
-#define Flex5Pin 6;
+#define Flex1Pin A0
+#define Flex2Pin A1
+#define Flex3Pin A2
+#define Flex4Pin A3
+#define Flex5Pin A6
 
 //ZyroSensor pin number
-// #define ZyroPin 
+#define ZyroSDA A4
+#define ZyroSCL A5
+#define ZyroINT 12
 
-//Bluetooth module pin number;
-#define BluetoothRxPin 3;
-#define BluetoothTxPin 2;
+//Bluetooth module pin number
+#define BluetoothRxPin 3
+#define BluetoothTxPin 2
 
-//Survo motor pin number;
-#define Survo1Pin 10;
-#define Survo2Pin 11;
-#define Survo3Pin 12;
-#define Survo4Pin 13;
-#define Survo5Pin 14;
+//Survo motor pin number
+#define Survo1Pin 5
+#define Survo2Pin 6
+#define Survo3Pin 9
+#define Survo4Pin 10
+#define Survo5Pin 11
 
 //define data len
 #define sendDataArrayLen 24
