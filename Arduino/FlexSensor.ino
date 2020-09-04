@@ -17,7 +17,7 @@ float alpha = 0.2; //민감도
 int angle;
 int anglearray[num];
 int filteredangle;
-//===================================//
+//====================================//
 
 SoftwareSerial mySerial(3,2);
 
