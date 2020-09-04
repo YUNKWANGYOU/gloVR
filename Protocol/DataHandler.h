@@ -54,7 +54,7 @@ class DataHandler{
 
     private:
     //arduino -> unity data
-    // start record(0), Array Length(1), flex Sensor(2 ~ 11), zyro Sensor(12 ~ 23), end record(24)
+    // start record(0), Array Length(1), flex Sensor(2 ~ 11), zyro Sensor(12 ~ 22), end record(23)
     char arduinoToUnityDataArray[sendDataArrayLen];
     
     //unity -> arduino data
