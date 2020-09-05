@@ -119,7 +119,8 @@ bool DataHandler::sendData(){
     for(i=0;i<13;i++){
         mySerial.write(arduinoToUnityDataArray[i]);
     }
-    
+
+    return 1;
 }
 
 //데이터 수신시 사용하는 메소드
@@ -130,11 +131,4 @@ int * DataHandler::ReceiveData(){
 
 bool DataHandler::RotateSurvo(){
     // unityToArduinoDataArray배열의 데이터에 따라 서보모터 각도를 회전.
-}
-
-//--------------------------헬퍼함수----------------------
-
-uint8_t filtFlexData(int data){
-
-
 }
