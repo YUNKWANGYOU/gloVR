@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class finger_rotate : MonoBehaviour
+public class hand_motion : MonoBehaviour
 {
 	// main camera
 	//private Camera mainCamera;
