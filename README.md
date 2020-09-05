@@ -20,14 +20,14 @@ gloVR 협업을 위한 깃헙링크
 목적 : 프로그램 간 원활한 통신과, 팀원들 간 데이터 형식이 달라 발생하는 문제를 방지
 
 1.Arduino to Unity
-|index|0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|
-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
-|1byte|str|flex1|~|flex2|~|flex3|~|flex4|~|flex5|~|AcX|~|AcY|~|AcZ|~|ZyX|~|ZyY|~|ZyZ|~|end|
+|index|0|1|2|3|4|5|6|7|8|9|10|11|12|
+|-|-|-|-|-|-|-|-|-|-|-|-|-|-|
+|1byte|str|flex1|flex2|flex3|flex4|flex5|AcX|AcY|AcZ|ZyX|ZyY|ZyZ|end|
 
 2.Unity to Arduino
-|index|0|1|2|3|4|5|6|7|8|9|10|11|
-|-|-|-|-|-|-|-|-|-|-|-|-|-|
-|1byte|str|sv1|~|sv2|~|sv3|~|sv4|~|sv5|~|end|
+|index|0|1|2|3|4|5|6|
+|-|-|-|-|-|-|-|-|
+|1byte|str|sv1|sv2|sv3|sv4|sv5|end|
 
 3.Python(openCV) to Unity
 not yet
