@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO.Ports;
 
-public class finger_rotate : MonoBehaviour
+public class hand_motion : MonoBehaviour
 {
 
     // Serial port Object
