@@ -48,18 +48,21 @@
 #define Survo5Pin 11
 
 //define data len
-#define sendDataArrayLen 24
-#define receiveDataArrayLen 12
+#define sendDataArrayLen 13
+#define receiveDataArrayLen 7
+
+// filter 민감도
+#define alpha 0.2
 
 class DataHandler{
 
     private:
     //arduino -> unity data
-    // start record(0), Array Length(1), flex Sensor(2 ~ 11), zyro Sensor(12 ~ 22), end record(23)
+    // start record(0), flex Sensor(1 ~ 5), zyro Sensor(5 ~ 11), end record(12)
     char arduinoToUnityDataArray[sendDataArrayLen];
     
     //unity -> arduino data
-    // start record(0), Array Length(1), Command(2), param(3~7), end record(8)
+    // start record(0), param(1~5), end record(6)
     char unityToArduinoDataArray[receiveDataArrayLen];
     
     //bluetooth module
@@ -68,18 +71,30 @@ class DataHandler{
     //servo motor array
     Servo servoArr[5];
 
-    public:
+    //flexSensor filter에 필요한 값
+    int flexValueArr[5];
 
+
+    public:
     // 초기화하기
     bool InitFlex();
+    bool InitFlexFilter();
     bool InitZyro();
+    bool InitZyroFilter();
     bool InitSurvo();
     bool InitBluetooth();
 
     //데이터 송신시 사용하는 메소드
-    char getFlexData(int * intArr);
-    char getZyroData(int * intArr);
+    int* getFlexData();
+    uint8_t* filtFlexData(int* dataArr);
+
+    int* getZyroData();
+    uint8_t* filtZyroData(int* dataArr);
+
+    bool setSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr);
+
     char checkAllSendData(int * intArr);
+    
     bool sendData();
 
     //데이터 수신시 사용하는 메소드
