@@ -56,7 +56,5 @@ not yet
 
 # 5. Unity3D
 목적 : 캐치볼 게임 만들기
+유니티 코드는 https://github.com/Young-37/gloVR_Unity 참고
 
-각종 cs파일로 구성
-
-사용법 : cs파일만 업로드, cs파일의 첫줄에 이 파일의 목적, 역할, unity에 적용하는 방법을 작성
