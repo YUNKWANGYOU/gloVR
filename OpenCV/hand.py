@@ -55,7 +55,8 @@ while (1):
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     # Create a binary image with where white will be skin colors and rest is black
-    mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
+    mask2 = cv2.inRange(hsv, np.array([110,30,30]), np.array([130, 350, 350]))
+    #mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
 
     # Kernel matrices for morphological transformation
     kernel_square = np.ones((11, 11), np.uint8)
@@ -83,6 +84,7 @@ while (1):
     # cv2.imshow('Dilation',median)
 
     # Find Max contour area (Assume that hand is in the frame)
+
     max_area = 100
     ci = 0
     for i in range(len(contours)):
@@ -94,7 +96,7 @@ while (1):
 
         # Largest area contour
     cnts = contours[ci]
-
+    
     # Find convex hull
     hull = cv2.convexHull(cnts)
 
@@ -104,14 +106,17 @@ while (1):
 
     # Get defect points and draw them in the original image
     FarDefect = []
-    for i in range(defects.shape[0]):
-        s, e, f, d = defects[i, 0]
-        start = tuple(cnts[s][0])
-        end = tuple(cnts[e][0])
-        far = tuple(cnts[f][0])
-        FarDefect.append(far)
-        #cv2.line(frame, start, end, [0, 255, 0], 1)
-        #cv2.circle(frame, far, 10, [100, 255, 255], 3)
+    if defects is None:
+        nothing();
+    else:
+        for i in range(defects.shape[0]):
+            s, e, f, d = defects[i, 0]
+            start = tuple(cnts[s][0])
+            end = tuple(cnts[e][0])
+            far = tuple(cnts[f][0])
+            FarDefect.append(far)
+            #cv2.line(frame, start, end, [0, 255, 0], 1)
+            #cv2.circle(frame, far, 10, [100, 255, 255], 3)
 
     # Find moments of the largest contour
     moments = cv2.moments(cnts)
