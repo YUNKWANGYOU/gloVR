@@ -358,21 +358,18 @@ public class hand_motion : MonoBehaviour
 		{
 			float speed = 5f;
 			hand.transform.Rotate(new Vector3(speed, 0, 0), Space.World);
-			//hand.transform.Rotate(new Vector3(speed, 0, 0), Space.Self);
 		}
 		// Pitch (y)
 		if (Input.GetKey(KeyCode.P))
 		{
 			float speed = 5f;
 			hand.transform.Rotate(new Vector3(0, speed, 0), Space.World);
-			//hand.transform.Rotate(new Vector3(0, speed, 0), Space.Self);
 		}
 		// Yaw (z)
 		if (Input.GetKey(KeyCode.Y))
 		{
 			float speed = 5f;
 			hand.transform.Rotate(new Vector3(0, 0, speed), Space.World);
-			//hand.transform.Rotate(new Vector3(0, 0, speed), Space.Self);
 		}
 	}
 
