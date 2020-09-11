@@ -1,8 +1,9 @@
-﻿// Hand asset을 움직이게 하기 위한 스크립트
+// Hand asset을 움직이게 하기 위한 스크립트
 // 손가락 각도 조절: 화살표 방향키 위(펴기), 아래(굽히기)
 // 손가락 변경: 1~5 (엄지~새끼)
 // 손 이동: 마우스 클릭한 좌표로 이동
-// Grip과 Release 기능 있음
+// 손 회전: Y(yaw), P(pitch), R(roll)
+// Grip과 Release, Reset 기능 있음 (Reset은 회전 각 초기화)
 // 값이 50~180이 들어온다는 가정 하에 만듬. (혹시 입력 값이 바뀐다면 스크립트 수정해야함)
 
 using System.Collections;
@@ -11,9 +12,6 @@ using UnityEngine;
 
 public class hand_motion : MonoBehaviour
 {
-	// main camera
-	//private Camera mainCamera;
-
 	// hand
 	private GameObject hand;
 
@@ -61,20 +59,14 @@ public class hand_motion : MonoBehaviour
 	// mouse click point
 	private Vector3 mouseWorldPosition;
 
-	// default hand rotation value
-	//private Quaternion defaultHandRotation;
-
 	// Start is called before the first frame update
 	void Start()
-    {
-		// find main camera
-		//mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
-
+	{
 		// read all Children of current object
 		Transform[] allChildren = GetComponentsInChildren<Transform>();
 
 		// iterate
-		foreach(Transform child in allChildren)
+		foreach (Transform child in allChildren)
 		{
 			// find hand object
 			if (child.name == "Hand")
@@ -140,8 +132,8 @@ public class hand_motion : MonoBehaviour
 
 		// set finger as release
 		thumb_0.transform.localEulerAngles = new Vector3(-28.32f, ((-finger_degree - 160) / 5), -25.86f);
-		thumb_1.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.5f;
-		thumb_2.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.3f;
+		thumb_1.transform.localEulerAngles = new Vector3(2.37f, -0.297f, -finger_degree) * 0.5f;
+		thumb_2.transform.localEulerAngles = new Vector3(1.36f, -0.126f, -finger_degree) * 0.3f;
 
 		index_finger_1.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.5f;
 		index_finger_2.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.8f;
@@ -162,27 +154,9 @@ public class hand_motion : MonoBehaviour
 		//defaultHandRotation = hand.transform.rotation;
 	}
 
-    // Update is called once per frame
-    void Update()
-    {
-		//if (finger_flex > 180)
-		//{
-		//	finger_flex = 180;
-		//}
-		//if (finger_flex < 50)
-		//{
-		//	finger_flex = 50;
-		//}
-		//
-		//if (finger_degree > 0)
-		//{
-		//	finger_degree = 0;
-		//}
-		//if (finger_degree < -130)
-		//{
-		//	finger_degree = -130;
-		//}
-
+	// Update is called once per frame
+	void Update()
+	{
 		// change finger (thumb)
 		if (Input.GetKeyDown(KeyCode.Alpha1))
 		{
@@ -227,23 +201,6 @@ public class hand_motion : MonoBehaviour
 		//Vector3 angle = Quaternion.Euler(0f, 3f, 0f);
 		if (Input.GetKey(KeyCode.UpArrow) && finger_1 != thumb_1)
 		{
-			//Quaternion current_angle = index_finger_1.transform.rotation;
-			//Quaternion angle = current_angle + new Quaternion(0, 3, 0, 0);
-			//index_finger_1.transform.rotation = Quaternion.Euler(angle);
-
-			//finger_1.transform.Rotate(new Vector3(1, 0, 0) * 0.1f);
-			//finger_2.transform.Rotate(new Vector3(-1, 0, 0) * 0.3f);
-			//finger_3.transform.Rotate(new Vector3(-1, 0, 0) * 0.3f);
-
-			//******
-			//finger_1.transform.Rotate(new Vector3(-1, 0, 0) * 5.0f);
-			//finger_2.transform.Rotate(new Vector3(-1, 0, 0) * 8.0f);
-			//finger_3.transform.Rotate(new Vector3(-1, 0, 0) * 3.0f);
-
-			//finger_1.transform.rotation = Quaternion.Euler(-10.317f + ((50 - 70) / 50 * 28), 5.407f, 1.36f);
-			//finger_2.transform.rotation = Quaternion.Euler(-5.162f + (70 / 50 * -87), -3.862f, -0.988f);
-			//finger_3.transform.rotation = Quaternion.Euler(-1.06f + (70 / 50 * -86), 0.804f, 1.145f);
-
 			finger_flex += 1;
 			if (finger_flex > 180)
 			{
@@ -280,23 +237,11 @@ public class hand_motion : MonoBehaviour
 			}
 
 			// print rotation value
-			//Debug.Log(finger_1.transform.rotation.x);
-			//Debug.Log(finger_2.transform.rotation.x);
-			//Debug.Log(finger_3.transform.rotation.x);
 			Debug.Log(finger_degree);
 			Debug.Log("--------------------------------------------------");
 		}
 		if (Input.GetKey(KeyCode.DownArrow) && finger_1 != thumb_1)
 		{
-			//finger_1.transform.Rotate(new Vector3(-1, 0, 0) * 0.1f);
-			//finger_2.transform.Rotate(new Vector3(1, 0, 0) * 0.3f);
-			//finger_3.transform.Rotate(new Vector3(1, 0, 0) * 0.3f);
-
-			//*******************
-			//finger_1.transform.Rotate(new Vector3(1, 0, 0) * 5.0f);
-			//finger_2.transform.Rotate(new Vector3(1, 0, 0) * 8.0f);
-			//finger_3.transform.Rotate(new Vector3(1, 0, 0) * 3.0f);
-
 			finger_flex -= 1;
 			if (finger_flex < 50)
 			{
@@ -333,9 +278,6 @@ public class hand_motion : MonoBehaviour
 			}
 
 			// print rotation value
-			//Debug.Log(finger_1.transform.rotation);
-			//Debug.Log(finger_2.transform.rotation);
-			//Debug.Log(finger_3.transform.rotation);
 			Debug.Log(finger_degree);
 			Debug.Log("--------------------------------------------------");
 		}
@@ -354,19 +296,13 @@ public class hand_motion : MonoBehaviour
 				finger_degree = 0;
 			}
 
-			//******************
-			//finger_1.transform.Rotate(new Vector3(0, 0, 1) * 0.1f);
-			//finger_2.transform.Rotate(new Vector3(0, 0, 1) * 0.3f);
-
 			finger_1.transform.localEulerAngles = new Vector3(-28.32f, ((-finger_degree - 160) / 5), -25.86f);
-			finger_2.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.5f;
-			finger_3.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.3f;
+			finger_2.transform.localEulerAngles = new Vector3(2.37f, -0.297f, -finger_degree) * 0.5f;
+			finger_3.transform.localEulerAngles = new Vector3(1.36f, -0.126f, -finger_degree) * 0.3f;
 
 			thumb_flex = finger_flex;
 
 			// print rotation value
-			//Debug.Log(finger_1.transform.rotation);
-			//Debug.Log(finger_2.transform.rotation);
 			Debug.Log(finger_degree);
 			Debug.Log("--------------------------------------------------");
 		}
@@ -384,20 +320,14 @@ public class hand_motion : MonoBehaviour
 				finger_degree = -130;
 			}
 
-			//******************
-			//finger_1.transform.Rotate(new Vector3(0, 0, -1) * 0.1f);
-			//finger_2.transform.Rotate(new Vector3(0, 0, -1) * 0.3f);
-
 			// rotate finger (change x value)
 			finger_1.transform.localEulerAngles = new Vector3(-28.32f, ((-finger_degree - 160) / 5), -25.86f);
-			finger_2.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.5f;
-			finger_3.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.3f;
+			finger_2.transform.localEulerAngles = new Vector3(2.37f, -0.297f, -finger_degree) * 0.5f;
+			finger_3.transform.localEulerAngles = new Vector3(1.36f, -0.126f, -finger_degree) * 0.3f;
 
 			thumb_flex = finger_flex;
 
 			// print rotation value
-			//Debug.Log(finger_1.transform.rotation);
-			//Debug.Log(finger_2.transform.rotation);
 			Debug.Log(finger_degree);
 			Debug.Log("--------------------------------------------------");
 		}
@@ -407,18 +337,12 @@ public class hand_motion : MonoBehaviour
 		{
 			// change hand's world coordinate to screen coordinate (to get z(depth) value)
 			Vector3 handScreenPosition = Camera.main.WorldToScreenPoint(hand.transform.position);
-			
+
 			// change mouse's screen coordinate to world coordinate
 			mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, handScreenPosition.z));
+			mouseWorldPosition.y = mouseWorldPosition.y - 1.15f;
 
 			Debug.Log(mouseWorldPosition);
-
-			//hand.transform.position = Vector3.MoveTowards(hand.transform.position, mouseWorldPosition, 1f * Time.deltaTime);
-
-			//Vector3 moveVector = mouseWorldPosition - hand.transform.position;
-			//hand.transform.position = mouseWorldPosition;
-			// offset = hand's world coordinate - mouse's world coordinate (vector from mouse to hand)
-			//Vector3 offset = hand.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, handScr_coor.z));
 		}
 
 		// move hand
@@ -428,12 +352,28 @@ public class hand_motion : MonoBehaviour
 			hand.transform.position = Vector3.MoveTowards(hand.transform.position, mouseWorldPosition, speed * Time.deltaTime);
 		}
 
-		// when mouse button up
-		//if (Input.GetMouseButtonUp(0))
-		//{
-		//	Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-		//	RaycastHit hit;
-		//}
+		// rotate hand
+		// Roll (x)
+		if (Input.GetKey(KeyCode.R))
+		{
+			float speed = 5f;
+			hand.transform.Rotate(new Vector3(speed, 0, 0), Space.World);
+			//hand.transform.Rotate(new Vector3(speed, 0, 0), Space.Self);
+		}
+		// Pitch (y)
+		if (Input.GetKey(KeyCode.P))
+		{
+			float speed = 5f;
+			hand.transform.Rotate(new Vector3(0, speed, 0), Space.World);
+			//hand.transform.Rotate(new Vector3(0, speed, 0), Space.Self);
+		}
+		// Yaw (z)
+		if (Input.GetKey(KeyCode.Y))
+		{
+			float speed = 5f;
+			hand.transform.Rotate(new Vector3(0, 0, speed), Space.World);
+			//hand.transform.Rotate(new Vector3(0, 0, speed), Space.Self);
+		}
 	}
 
 	public void GripHand()
@@ -442,8 +382,8 @@ public class hand_motion : MonoBehaviour
 
 		// set finger as grip
 		thumb_0.transform.localEulerAngles = new Vector3(-28.32f, ((-finger_degree - 160) / 5), -25.86f);
-		thumb_1.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.5f;
-		thumb_2.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.3f;
+		thumb_1.transform.localEulerAngles = new Vector3(2.37f, -0.297f, -finger_degree) * 0.5f;
+		thumb_2.transform.localEulerAngles = new Vector3(1.36f, -0.126f, -finger_degree) * 0.3f;
 
 		index_finger_1.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.5f;
 		index_finger_2.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.8f;
@@ -475,8 +415,8 @@ public class hand_motion : MonoBehaviour
 
 		// set finger as release
 		thumb_0.transform.localEulerAngles = new Vector3(-28.32f, ((-finger_degree - 160) / 5), -25.86f);
-		thumb_1.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.5f;
-		thumb_2.transform.localEulerAngles = new Vector3(20, 30, -finger_degree) * 0.3f;
+		thumb_1.transform.localEulerAngles = new Vector3(2.37f, -0.297f, -finger_degree) * 0.5f;
+		thumb_2.transform.localEulerAngles = new Vector3(1.36f, -0.126f, -finger_degree) * 0.3f;
 
 		index_finger_1.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.5f;
 		index_finger_2.transform.localEulerAngles = new Vector3(finger_degree, 0, 0) * 0.8f;
@@ -500,5 +440,10 @@ public class hand_motion : MonoBehaviour
 		middle_finger_flex = finger_degree + 180;
 		ring_finger_flex = finger_degree + 180;
 		pinky_flex = finger_degree + 180;
+	}
+
+	public void ResetHand()
+	{
+		hand.transform.localEulerAngles = new Vector3(85, 0, 0);
 	}
 }
