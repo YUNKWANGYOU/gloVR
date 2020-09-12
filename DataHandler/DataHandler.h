@@ -17,7 +17,7 @@
 class DataHandler
 {
 public:
-	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin);
+	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin); //블루투스 핀 지정하고 클래스 객체 생성
 	//arduino -> unity data
 	// start record(0), flex Sensor(1 ~ 5), zyro Sensor(5 ~ 11), end record(12)
 	//char arduinoToUnityDataArray[sendDataArrayLen];
@@ -38,20 +38,21 @@ public:
 	int Flex3Pin = A2;
 	int Flex4Pin = A3;
 	int Flex5Pin = A4;
-	float alpha;
+	float alpha; // 필터링 민감도 아두이노에서 설정 가능
 	uint16_t flexValueArr[5];
 	uint16_t filteredvalue[5];
-	SoftwareSerial mySerial;
+	uint8_t anglevalue[5];
+	SoftwareSerial mySerial; // 블루투스 객체
 	void InitFlex();
 	void FilterDeg(float alpha);
 	void InitZyro();
 	//bool InitSurvo();
 	//bool InitBluetooth();
-	bool isready(int* ptr); // 에러확인
+	bool isready(int* ptr); // 에러확인용 아직 사용 x
 
 	//데이터 송신시 사용하는 메소드
-	uint8_t* getFlexData();
-	uint8_t* filtFlexData(uint16_t* dataArr)
+	uint8_t* getFlexData(); //uint8_t anglevalue[5] 반환함
+	void filtFlexData();
 
 	/*int* getZyroData();
 	uint8_t* filtZyroData(int* dataArr);
