@@ -1,14 +1,20 @@
 import cv2
 import numpy as np
 import time
+import math
+import socket
+
+UDP_IP = "127.0.0.1"
+UDP_PORT = 5065
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Open Camera object
 cap = cv2.VideoCapture(0)
 
 # Decrease frame size
-#cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 1000)
-#cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 600)
-
+cap.set(3, 500)
+cap.set(4, 600)
 
 def nothing(x):
     pass
@@ -200,6 +206,13 @@ while (1):
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         break
+
+    try:
+
+        sock.sendto( (" " +str(x)+"  "+str(y)).encode(), (UDP_IP, UDP_PORT) )
+        print(" " +str(x)+"  "+str(y)+" ")    
+    except:
+        pass
 
 cap.release()
 cv2.destroyAllWindows()
