@@ -51,12 +51,6 @@ public class ball_control : MonoBehaviour
 			float speed = 0.5f;
 			this.transform.Translate(moveVector * Time.deltaTime * speed, Space.World);
 			this.transform.Rotate(moveVector);
-
-			//if (Vector3.Distance(this.transform.position, hand.transform.position) > 10f)
-			//{
-			//	// put ball at start point
-			//	this.transform.position = new Vector3(0, 0.5f, -11f);
-			//}
 		}
 	}
 }
