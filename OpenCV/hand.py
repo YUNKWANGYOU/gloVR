@@ -13,8 +13,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 cap = cv2.VideoCapture(0)
 
 # Decrease frame size
-cap.set(3, 500)
-cap.set(4, 600)
+cap.set(3, 1000)
+cap.set(4, 1200)
 
 def nothing(x):
     pass
@@ -101,8 +101,12 @@ while (1):
             ci = i
 
         # Largest area contour
+    print("ci = ",ci)
+    print("type = ",type(contours),"len = ",len(contours))
     cnts = contours[ci]
-    
+
+
+
     # Find convex hull
     hull = cv2.convexHull(cnts)
 
@@ -209,8 +213,8 @@ while (1):
 
     try:
 
-        sock.sendto( (" " +str(x)+"  "+str(y)).encode(), (UDP_IP, UDP_PORT) )
-        print(" " +str(x)+"  "+str(y)+" ")    
+        sock.sendto((str(x)+","+str(y)).encode(), (UDP_IP, UDP_PORT) )
+        print((str(x)+","+str(y)))
     except:
         pass
 
