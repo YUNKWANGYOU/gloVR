@@ -33,28 +33,29 @@ public:
 	//Servo servoArr[5];
 
 	// 초기화하기
-	int Flex1Pin = A0;
-	int Flex2Pin = A1;
-	int Flex3Pin = A2;
-	int Flex4Pin = A3;
-	int Flex5Pin = A4;
+	int flex0Pin = A0;
+	int flex1Pin = A1;
+	int flex2Pin = A2;
+	int flex3Pin = A3;
+	int flex4Pin = A4;
 	float alpha; // 필터링 민감도 아두이노에서 설정 가능
 	uint16_t flexValueArr[5];
-	uint16_t filteredvalue[5];
-	uint8_t anglevalue[5];
+	uint16_t filteredValue[5];
+	uint8_t angleValue[5];
 	SoftwareSerial mySerial; // 블루투스 객체
+
 	void InitFlex();
 	void FilterDeg(float alpha);
 	void InitZyro();
 	//bool InitSurvo();
 	//bool InitBluetooth();
-	bool isready(int* ptr); // 에러확인용 아직 사용 x
+	bool IsReady(int* ptr); // 에러확인용 아직 사용 x
 
 	//데이터 송신시 사용하는 메소드
-	uint8_t* getFlexData(); //uint8_t anglevalue[5] 반환함
-	void filtFlexData();
+	uint8_t* GetFlexData(); //uint8_t anglevalue[5] 반환함
+	void FiltFlexData();
 
-	/*int* getZyroData();
+	/*int* getZyroData();  
 	uint8_t* filtZyroData(int* dataArr);
 
 	bool setSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr);

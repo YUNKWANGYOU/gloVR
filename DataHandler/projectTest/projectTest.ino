@@ -12,7 +12,7 @@ void setup()
 void loop() 
 { 
   //플로터 출력을 위한 임시 코드
- flexData = test.getFlexData();
+ flexData = test.GetFlexData();
  int data0 = *(flexData+0);
  int data1 = *(flexData+1);
  int data2 = *(flexData+2);
