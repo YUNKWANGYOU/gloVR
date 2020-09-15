@@ -16,7 +16,7 @@ cap = cv2.VideoCapture(0)
 cap.set(3, 1000)
 cap.set(4, 1200)
 
-def nothing(x):
+def nothing():
     pass
 
 
@@ -79,11 +79,15 @@ while (1):
     dilation2 = cv2.dilate(filtered, kernel_ellipse, iterations=1)
     kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     dilation3 = cv2.dilate(filtered, kernel_ellipse, iterations=1)
-    median = cv2.medianBlur(dilation2, 5)
+    median = cv2.medianBlur(dilation, 5)
     ret, thresh = cv2.threshold(median, 127, 255, 0)
 
     # Find contours of the filtered frame
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    # TODO = FUCKING SHIT ERROR
+    contours, hierarchy = cv2.findContours(median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours :
+        continue
 
     # Draw Contours
     # cv2.drawContours(frame, cnt, -1, (122,122,0), 3)
@@ -103,6 +107,11 @@ while (1):
         # Largest area contour
     print("ci = ",ci)
     print("type = ",type(contours),"len = ",len(contours))
+    #print("contour contents = ",contours[0])
+
+
+
+
     cnts = contours[ci]
 
 
@@ -117,7 +126,7 @@ while (1):
     # Get defect points and draw them in the original image
     FarDefect = []
     if defects is None:
-        nothing();
+        nothing()
     else:
         for i in range(defects.shape[0]):
             s, e, f, d = defects[i, 0]
