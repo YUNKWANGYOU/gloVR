@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 
+
 # Open Camera object
 cap = cv2.VideoCapture(0)
 
