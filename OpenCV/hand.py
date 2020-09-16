@@ -84,7 +84,6 @@ while (1):
 
     # Find contours of the filtered frame
 
-    # TODO = FUCKING SHIT ERROR
     contours, hierarchy = cv2.findContours(median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     if not contours :
         continue
@@ -105,11 +104,6 @@ while (1):
             ci = i
 
         # Largest area contour
-    print("ci = ",ci)
-    print("type = ",type(contours),"len = ",len(contours))
-    #print("contour contents = ",contours[0])
-
-
 
 
     cnts = contours[ci]
@@ -141,9 +135,21 @@ while (1):
     moments = cv2.moments(cnts)
 
     # Central mass of first order moments 이 값 보내주면 될듯!!!!!
+    #filteredvalue = filteredvalue * (1 - alpha) + flexvalue * alpha;
+
     if moments['m00'] != 0:
         cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
         cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
+
+        #TODO = LPF for cx,cy
+        cx2 = cx
+        cx2 = int(cx2*(0.10) + cx*0.90)
+        cy2 = cy
+        cy2 = int(cy2*(0.10) + cy*0.90)
+
+
+        print("cx = ",cx2)
+        print("cy = ",cy)
     centerMass = (cx, cy)
 
     # Draw center mass
