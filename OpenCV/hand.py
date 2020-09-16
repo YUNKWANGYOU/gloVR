@@ -46,6 +46,9 @@ cv2.createTrackbar('h', 'HSV_TrackBar', 0, 179, nothing)
 cv2.createTrackbar('s', 'HSV_TrackBar', 0, 255, nothing)
 cv2.createTrackbar('v', 'HSV_TrackBar', 0, 255, nothing)
 
+
+cxcyCount = 0
+
 while (1):
 
     # Measure execution time
@@ -137,19 +140,40 @@ while (1):
     # Central mass of first order moments 이 값 보내주면 될듯!!!!!
     #filteredvalue = filteredvalue * (1 - alpha) + flexvalue * alpha;
 
+    # TODO = LPF for cx,cy
+
+    """
+    1.cx2,cy2에 이전의 cx, cy 저장 (맨 처음에는 같은 값 저장)
+    2.cx,cy에 새로 들어오는 값 저장 
+    """
+
     if moments['m00'] != 0:
-        cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
-        cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
+        # 맨 처음에는 이전의 값을 같은 값으로 넣어주기
+        if cxcyCount == 0 :
 
-        #TODO = LPF for cx,cy
-        cx2 = cx
-        cx2 = int(cx2*(0.5) + cx*0.5)
-        cy2 = cy
-        cy2 = int(cy2*(0.5) + cy*0.5)
+            cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
+            cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
 
+            cx2 = cx
+            cx2 = int(cx2*(0.5) + cx*0.5)
+            cy2 = cy
+            cy2 = int(cy2*(0.5) + cy*0.5)
+링
 
-        print("cx = ",cx2)
-        print("cy = ",cy2)
+            print("cx = ",cx2)
+            print("cy = ",cy2)
+            cxcyCount = cxcyCount+1
+        # 두 번째 부터 이전 값 저장하고 새로들어오는값이랑 계산해서 필터
+        else :
+            cx2 = cx
+            cy2 = cy
+            cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
+            cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
+            cx2 = int(cx2 * (0.5) + cx * 0.5)
+            cy2 = int(cy2 * (0.5) + cy * 0.5)
+            print("cx = ", cx2)
+            print("cy = ", cy2)
+
     centerMass = (cx2, cy2)
 
     # Draw center mass
