@@ -64,7 +64,7 @@ while (1):
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     # Create a binary image with where white will be skin colors and rest is black
-    mask2 = cv2.inRange(hsv, np.array([110,30,30]), np.array([130, 350, 350]))
+    mask2 = cv2.inRange(hsv, np.array([110,90,90]), np.array([130,255, 255]))
     #mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
 
     # Kernel matrices for morphological transformation
@@ -88,8 +88,7 @@ while (1):
     # Find contours of the filtered frame
 
     contours, hierarchy = cv2.findContours(median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    if not contours :
-        continue
+
 
     # Draw Contours
     # cv2.drawContours(frame, cnt, -1, (122,122,0), 3)
@@ -108,10 +107,28 @@ while (1):
 
         # Largest area contour
 
+    if not contours :
+        ret, frame = cap.read()
+        cv2.imshow('Dilation', frame)
+        ###############################
+        # Print execution time
+        # print time.time()-start_time
+
+        # close the output video by pressing 'ESC'
+        k = cv2.waitKey(5) & 0xFF
+        if k == 27:
+            break
+
+        try:
+
+            sock.sendto((str(x) + "," + str(y)).encode(), (UDP_IP, UDP_PORT))
+            print((str(x) + "," + str(y)))
+        except:
+            pass
+
+        continue
 
     cnts = contours[ci]
-
-
 
     # Find convex hull
     hull = cv2.convexHull(cnts)
@@ -176,6 +193,7 @@ while (1):
     centerMass = (cx2, cy2)
 
     # Draw center mass
+
     cv2.circle(frame, centerMass, 7, [100, 0, 255], 2)
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(frame, 'Center', tuple(centerMass), font, 2, (255, 255, 255), 2)
