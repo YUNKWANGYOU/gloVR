@@ -158,7 +158,6 @@ while (1):
             cx2 = int(cx2*(0.5) + cx*0.5)
             cy2 = cy
             cy2 = int(cy2*(0.5) + cy*0.5)
-링
 
             print("cx = ",cx2)
             print("cy = ",cy2)
