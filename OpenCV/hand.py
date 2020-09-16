@@ -143,14 +143,14 @@ while (1):
 
         #TODO = LPF for cx,cy
         cx2 = cx
-        cx2 = int(cx2*(0.10) + cx*0.90)
+        cx2 = int(cx2*(0.5) + cx*0.5)
         cy2 = cy
-        cy2 = int(cy2*(0.10) + cy*0.90)
+        cy2 = int(cy2*(0.5) + cy*0.5)
 
 
         print("cx = ",cx2)
-        print("cy = ",cy)
-    centerMass = (cx, cy)
+        print("cy = ",cy2)
+    centerMass = (cx2, cy2)
 
     # Draw center mass
     cv2.circle(frame, centerMass, 7, [100, 0, 255], 2)
