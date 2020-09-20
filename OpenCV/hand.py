@@ -64,7 +64,7 @@ while (1):
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     # Create a binary image with where white will be skin colors and rest is black
-    mask2 = cv2.inRange(hsv, np.array([110,90,90]), np.array([130,255, 255]))
+    mask2 = cv2.inRange(hsv, np.array([110,70,70]), np.array([130,255, 255]))
     #mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
 
     # Kernel matrices for morphological transformation
