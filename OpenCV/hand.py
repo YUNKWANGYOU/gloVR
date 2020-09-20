@@ -13,8 +13,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 cap = cv2.VideoCapture(0)
 
 # Decrease frame size
-cap.set(3, 1000)
-cap.set(4, 1200)
+cap.set(3, 500)
+cap.set(4, 450)
 
 def nothing():
     pass
@@ -269,8 +269,8 @@ while (1):
 
     try:
 
-        sock.sendto((str(x)+","+str(y)).encode(), (UDP_IP, UDP_PORT) )
-        print((str(x)+","+str(y)))
+        sock.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
+        print((str(cx2)+","+str(cy2)))
     except:
         pass
 
