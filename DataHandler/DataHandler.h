@@ -1,16 +1,3 @@
-/*
-추가해야 할 사항
-1. 자이로 값 읽어서 배열로 저장
-2. 자이로, 플렉스 값 송신 버퍼에 저장
-3. 자이로, 플렉스 값 블루투스로 송신
-4. 서보 데이터 받아서 서보 제어하는 코드
-5. 송수신 겹치지 않도록 처리
-6. 에러 확인 등 부가적 요소
-*/
-
-
-
-
 
 // ensure this library description is only included once
 #ifndef DataHandler_h
@@ -81,7 +68,7 @@ public:
 	
 	//Send Data
 	void SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr);
-	char CheckAllSendData(int * intArr);
+	void CheckAllSendData();
 	void SendData();
 
 	//Receive Data

@@ -109,7 +109,7 @@ void  DataHandler::SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr) {
 	}
 }
 
-char DataHandler:: CheckAllSendData(int * intArr) {
+void DataHandler:: CheckAllSendData() {
 	// 보내기 전 arduinoToUnityDataArray배열의 데이터 검사.
 }
 
