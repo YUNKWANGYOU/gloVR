@@ -274,5 +274,12 @@ while (1):
     except:
         pass
 
+    # try:
+    #     UDP_DATA,addr = sock.recvfrom(3)
+    #     print("receive data : ",UDP_DATA)
+    #     print("receive port : ",addr[0],addr[1])
+    # except:
+    #     pass
+
 cap.release()
 cv2.destroyAllWindows()
