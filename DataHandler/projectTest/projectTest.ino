@@ -6,7 +6,7 @@ void setup()
 { 
   Serial.begin(9600);
   test.InitFlex();
-  test.FilterDeg(0.5);
+  test.FilterDeg(0.2);
 } 
 
 void loop() 
