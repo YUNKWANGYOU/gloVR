@@ -4,6 +4,11 @@ import time
 import math
 import socket
 
+
+#TODO
+#onOff = 파이썬 받은 문자열
+
+
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 
@@ -46,8 +51,11 @@ cv2.createTrackbar('h', 'HSV_TrackBar', 0, 179, nothing)
 cv2.createTrackbar('s', 'HSV_TrackBar', 0, 255, nothing)
 cv2.createTrackbar('v', 'HSV_TrackBar', 0, 255, nothing)
 
-
 cxcyCount = 0
+
+#TODO
+#if onOff == 0 :
+
 
 while (1):
 
@@ -64,7 +72,7 @@ while (1):
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
 
     # Create a binary image with where white will be skin colors and rest is black
-    mask2 = cv2.inRange(hsv, np.array([110,70,70]), np.array([130,255, 255]))
+    mask2 = cv2.inRange(hsv, np.array([45,65,65]), np.array([75,255, 255]))
     #mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
 
     # Kernel matrices for morphological transformation
@@ -95,6 +103,8 @@ while (1):
     # cv2.imshow('Dilation',median)
 
     # Find Max contour area (Assume that hand is in the frame)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernel, 1)
 
     max_area = 100
     ci = 0
@@ -109,7 +119,7 @@ while (1):
 
     if not contours :
         ret, frame = cap.read()
-        cv2.imshow('Dilation', frame)
+        cv2.imshow("Binary", mask2)
         ###############################
         # Print execution time
         # print time.time()-start_time
@@ -118,13 +128,6 @@ while (1):
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             break
-
-        try:
-
-            sock.sendto((str(x) + "," + str(y)).encode(), (UDP_IP, UDP_PORT))
-            print((str(x) + "," + str(y)))
-        except:
-            pass
 
         continue
 
@@ -256,7 +259,7 @@ while (1):
     #cv2.drawContours(frame, [hull], -1, (255, 255, 255), 2)
 
     ##### Show final image ########
-    cv2.imshow('Dilation', frame)
+    cv2.imshow("Binary", mask2)
     ###############################
 
     # Print execution time
