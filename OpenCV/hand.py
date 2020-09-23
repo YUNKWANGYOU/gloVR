@@ -119,7 +119,7 @@ while (1):
 
     if not contours :
         ret, frame = cap.read()
-        cv2.imshow("Binary", mask2)
+        cv2.imshow("Binary", frame)
         ###############################
         # Print execution time
         # print time.time()-start_time
@@ -259,7 +259,7 @@ while (1):
     #cv2.drawContours(frame, [hull], -1, (255, 255, 255), 2)
 
     ##### Show final image ########
-    cv2.imshow("Binary", mask2)
+    cv2.imshow("Binary", frame)
     ###############################
 
     # Print execution time
