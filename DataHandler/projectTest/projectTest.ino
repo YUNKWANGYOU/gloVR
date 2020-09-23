@@ -3,20 +3,29 @@
 DataHandler test(2,3);
 uint8_t *flexData;
 uint8_t *zyroData;
+
+/*void dmpDataReady() {
+    mpuInterrupt = true;
+}*/
+
+
 void setup() 
 { 
   Serial.begin(9600);
+  //pinMode(INTERRUPT_PIN, INPUT);
+  //attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
   test.InitFlex();
+ // test.GetFlexRange();
   test.InitZyro();
   test.InitServo();
-  test.FilterDeg(0.2);
+  test.FilterDeg(0.5);
 } 
 
 void loop() 
 { 
  //센서값 전송
  flexData = test.GetFlexData();
- zyroData = test.GetZyroData();
+ test.GetZyroData();
  test.SetSendData(flexData, zyroData);
  test.CheckAllSendData();
  test.SendData();
@@ -52,12 +61,12 @@ void loop()
 
 
  //플로터 출력을 위한 임시 코드
- /*int data0 = *(flexData+0);
+ int data0 = *(flexData+0);
  int data1 = *(flexData+1);
  int data2 = *(flexData+2);
  int data3 = *(flexData+3);
- int data4 = *(flexData+4);*/
- /*Serial.print(data0);
+ int data4 = *(flexData+4);
+ Serial.print(data0);
  Serial.print(' '); 
  Serial.print(data1); 
  Serial.print(' ');
@@ -65,5 +74,5 @@ void loop()
  Serial.print(' ');
  Serial.print(data3); 
  Serial.print(' ');
- Serial.println(data4); */
+ Serial.println(data4); 
 }

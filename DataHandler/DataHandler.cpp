@@ -1,9 +1,19 @@
 
 // include this library's description file
+#include "MPU6050_6Axis_MotionApps20.h"
 #include "DataHandler.h"
 #include "Arduino.h"
-// include description files for other libraries used (if any)
 #include "SoftwareSerial.h"
+#include "I2Cdev.h"
+#include "Wire.h"
+#include "String.h"
+
+MPU6050 mpu;
+//최종 값을 위한 변수들 Yaw / Pitch / Roll
+Quaternion q;           // [w, x, y, z]         quaternion container
+VectorFloat gravity;    // [x, y, z]            gravity vector
+float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+//인터럽트 변수
 
 
 DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
@@ -35,9 +45,50 @@ void DataHandler::FilterDeg(float alpha) {
 	this->alpha = alpha;
 }
 
+
+void DataHandler::dmpDataReady() {
+	this->mpuInterrupt = true;
+}
+
+void (DataHandler::*fcnPtr)() = &DataHandler::dmpDataReady;
+
 void DataHandler::InitZyro() {
 
+	Wire.begin();
+	Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+	//MPU 6050 센서 초기화
+
+	mpu.initialize();
+	//인터럽트핀(2) 입력으로 설정
+	pinMode(INTERRUPT_PIN, INPUT);
+	attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), fcnPtr, RISING);
+
+	//DMP 초기화
+	//DMP란 MPU6050내부에 있는 Digital Motion Processor
+
+	devStatus = mpu.dmpInitialize();
+
+	// 초기 감도 셋팅.... 일단 그대로 두고 패스
+	mpu.setXGyroOffset(220);
+	mpu.setYGyroOffset(76);
+	mpu.setZGyroOffset(-85);
+	mpu.setZAccelOffset(1788);
+
+	//초기화가 잘되었다면?
+	if (devStatus == 0) {
+
+		//DMP 활성화
+		Serial.println(F("Enabling DMP..."));
+		mpu.setDMPEnabled(true);
+		mpuIntStatus = mpu.getIntStatus();
+		dmpReady = true;
+		// FIFO 패킷 사이즈 얻어오기
+		packetSize = mpu.dmpGetFIFOPacketSize();
+	}
+	else {
+	}
 }
+
 
 void DataHandler::InitServo() {
 
@@ -50,11 +101,20 @@ void DataHandler::InitServo() {
 	for (int i = 0; i < 5; i++) {
 		servoArr[i].write(0);
 	}
-
-	return 1;
 }
-
-
+/*
+void  DataHandler::GetFlexRange() {
+	delay(2000);
+	*flexMax = *filteredValue;
+	*flexMin = *filteredValue;
+	for (int i = 0; i < 5000; i++) {
+		for (int j = 0; j < 5; j++) {
+			flexMax[j] = max(flexMax[j], filteredValue[j]);
+			flexMin[j] = min(flexMin[j], filteredValue[j]);
+		}
+	}
+}
+*/
 //데이터 송신시 사용하는 메소드
 uint8_t*  DataHandler::GetFlexData() {
 	// 플렉스 센서의 데이터를 받아 필터 적용 후 int형 배열(angle값)을 반환.
@@ -81,12 +141,46 @@ void DataHandler::FiltFlexData() {
 		else if (filteredValue[i] >= flexMax[i]) filteredValue[i] = flexMax[i];
 		angleValue[i] = map((int)filteredValue[i], flexMin[i], flexMax[i], 50, 180); //각도로 변환
 		angleValue[i] *= -1; // 180 ~ 50 범위를 50 ~ 180 으로 변환해줌
-		angleValue[i] += 230; 
+		angleValue[i] += 230;
 	}
 }
 
-uint8_t* DataHandler::GetZyroData() {
+void DataHandler::GetZyroData() {
 	// 자이로 센서의 데이터를 받아 배열로 반환.
+	   // 위에서 초기화가 잘 안됐다면 그냥 함수 종료
+	if (!dmpReady) return;
+
+	// 위에서 인터럽트와 연결된 함수에서 mpuInterrupt변수를 설정하는데
+	// 이곳에선 그 변수를 기다리다가 인터럽트가 발생하면 다음으로 넘어가게 
+	// 구성되어 있다.
+	while (!mpuInterrupt && fifoCount < packetSize);
+
+	// 인터럽트 변수 초기화
+	mpuInterrupt = false;
+	// mpu6050 상태 읽기
+	mpuIntStatus = mpu.getIntStatus();
+
+	// FIFO 버퍼 개수 얻기
+	fifoCount = mpu.getFIFOCount();
+
+	//  fifo가 넘쳤다면?
+	if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+		mpu.resetFIFO();
+		Serial.println(F("FIFO overflow!"));
+	}
+	else if (mpuIntStatus & 0x02) {
+		// packetSize만큼 fifo가 들어올때까지 대기              
+		while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+
+		// 데이터 받아 오기
+		mpu.getFIFOBytes(fifoBuffer, packetSize);
+		fifoCount -= packetSize;
+
+		//값 얻어오기
+		mpu.dmpGetQuaternion(&q, fifoBuffer);
+		mpu.dmpGetGravity(&gravity, &q);
+		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+	}
 
 }
 
