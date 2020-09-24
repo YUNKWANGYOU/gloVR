@@ -15,6 +15,7 @@ public class finger_rotate : MonoBehaviour
 	SerialPort sp = new SerialPort("/dev/tty.PARK-DevB",9600);
 	int degree = 0;
 	int status = 0;
+	int[] recvData = new int[5];
 	// hand
 	private GameObject hand;
 
@@ -53,7 +54,8 @@ public class finger_rotate : MonoBehaviour
         // open port
 		print("START!\n");
 		sp.Open();
-		sp.ReadTimeout = 1;
+		sp.ReadTimeout = 500;
+		print("port open");
 	
 		// read all Children of current object
 		Transform[] allChildren = GetComponentsInChildren<Transform>();
@@ -110,24 +112,28 @@ public class finger_rotate : MonoBehaviour
 		finger_3 = index_finger_3;
 	}
 
-    // rotate finger function 
-	void RotateFinger(int intData){
+	void RotateFinger(int[] intDataArr){
+		int[] rotate_degree = new int[5];
+		for(int i=0;i<5;i++){
+			rotate_degree[i] = 180 - intDataArr[i];
+		}
 
-        if((intData > 200) && (intData < 260)){
-            int rotate_degree = intData - 200;
-			rotate_degree = 60 - rotate_degree;
-			print("rotate_degree : " + rotate_degree);
+		index_finger_1.transform.localEulerAngles = new Vector3(rotate_degree[3] * 2,0,0) * 0.3f;
+		index_finger_2.transform.localEulerAngles = new Vector3(rotate_degree[3] * 2,0,0) * -0.9f;
+		index_finger_3.transform.localEulerAngles = new Vector3(rotate_degree[3] * 2,0,0) * -0.9f;
+		
+		middle_finger_1.transform.localEulerAngles = new Vector3(rotate_degree[2] * 2,0,0) * 0.3f;
+		middle_finger_2.transform.localEulerAngles = new Vector3(rotate_degree[2] * 2,0,0) * -0.9f;
+		middle_finger_3.transform.localEulerAngles = new Vector3(rotate_degree[2] * 2,0,0) * -0.9f;
 
-			finger_1.transform.localEulerAngles = new Vector3(rotate_degree * 2, 0, 0) * 0.3f;
-			finger_2.transform.localEulerAngles = new Vector3(rotate_degree * 2, 0, 0) * -0.9f;
-			finger_3.transform.localEulerAngles = new Vector3(rotate_degree * 2, 0, 0) * -0.9f;
+		ring_finger_1.transform.localEulerAngles = new Vector3(rotate_degree[1] * 2,0,0) * 0.3f;
+		ring_finger_2.transform.localEulerAngles = new Vector3(rotate_degree[1] * 2,0,0) * -0.9f;
+		ring_finger_3.transform.localEulerAngles = new Vector3(rotate_degree[1] * 2,0,0) * -0.9f;
 
-            Debug.Log(finger_1.transform.localEulerAngles);
-            Debug.Log(finger_2.transform.localEulerAngles);
-            Debug.Log(finger_3.transform.localEulerAngles);
-            Debug.Log("--------------------------------------------------");
-        }
-    }
+		pinky_1.transform.localEulerAngles = new Vector3(rotate_degree[0] * 2,0,0) * 0.3f;
+		pinky_2.transform.localEulerAngles = new Vector3(rotate_degree[0] * 2,0,0) * -0.9f;
+		pinky_3.transform.localEulerAngles = new Vector3(rotate_degree[0] * 2,0,0) * -0.9f;
+	}
 
     // Update is called once per frame
     void Update()
@@ -135,13 +141,18 @@ public class finger_rotate : MonoBehaviour
         //translate and rotate
 		if(sp.IsOpen){
 			try{
-			RotateFinger(sp.ReadByte());
-			print(sp.ReadByte());
-			}
-			catch(System.Exception){
+			// RotateFinger(sp.ReadByte());
+				for(int i=0;i<5;i++){
+					recvData[i] = sp.ReadByte();
+					Debug.Log(recvData[i]);
+				}
 
 			}
+			catch(System.Exception e){
+				Debug.Log(e);
+			}
      	}
+		 RotateFinger(recvData);
 
 		// change finger (thumb)
 		if (Input.GetKeyDown(KeyCode.Alpha1))
