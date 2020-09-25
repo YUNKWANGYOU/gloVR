@@ -8,13 +8,6 @@
 #include "Wire.h"
 #include "String.h"
 
-MPU6050 mpu;
-//ÃÖÁ¾ °ªÀ» À§ÇÑ º¯¼öµé Yaw / Pitch / Roll
-Quaternion q;           // [w, x, y, z]         quaternion container
-VectorFloat gravity;    // [x, y, z]            gravity vector
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
-//ÀÎÅÍ·´Æ® º¯¼ö
-
 
 DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
 	pinMode(rxPin, INPUT);
@@ -56,33 +49,33 @@ void DataHandler::InitZyro() {
 
 	Wire.begin();
 	Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
-	//MPU 6050 ¼¾¼­ ÃÊ±âÈ­
+	//MPU 6050 ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 
 	mpu.initialize();
-	//ÀÎÅÍ·´Æ®ÇÉ(2) ÀÔ·ÂÀ¸·Î ¼³Á¤
+	//ï¿½ï¿½ï¿½Í·ï¿½Æ®ï¿½ï¿½(2) ï¿½Ô·ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	pinMode(INTERRUPT_PIN, INPUT);
 	attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), fcnPtr, RISING);
 
-	//DMP ÃÊ±âÈ­
-	//DMP¶õ MPU6050³»ºÎ¿¡ ÀÖ´Â Digital Motion Processor
+	//DMP ï¿½Ê±ï¿½È­
+	//DMPï¿½ï¿½ MPU6050ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½Ö´ï¿½ Digital Motion Processor
 
 	devStatus = mpu.dmpInitialize();
 
-	// ÃÊ±â °¨µµ ¼ÂÆÃ.... ÀÏ´Ü ±×´ë·Î µÎ°í ÆÐ½º
+	// ï¿½Ê±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.... ï¿½Ï´ï¿½ ï¿½×´ï¿½ï¿½ ï¿½Î°ï¿½ ï¿½Ð½ï¿½
 	mpu.setXGyroOffset(220);
 	mpu.setYGyroOffset(76);
 	mpu.setZGyroOffset(-85);
 	mpu.setZAccelOffset(1788);
 
-	//ÃÊ±âÈ­°¡ ÀßµÇ¾ú´Ù¸é?
+	//ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½ßµÇ¾ï¿½ï¿½Ù¸ï¿½?
 	if (devStatus == 0) {
 
-		//DMP È°¼ºÈ­
+		//DMP È°ï¿½ï¿½È­
 		Serial.println(F("Enabling DMP..."));
 		mpu.setDMPEnabled(true);
 		mpuIntStatus = mpu.getIntStatus();
 		dmpReady = true;
-		// FIFO ÆÐÅ¶ »çÀÌÁî ¾ò¾î¿À±â
+		// FIFO ï¿½ï¿½Å¶ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		packetSize = mpu.dmpGetFIFOPacketSize();
 	}
 	else {
@@ -115,100 +108,116 @@ void  DataHandler::GetFlexRange() {
 	}
 }
 */
-//µ¥ÀÌÅÍ ¼Û½Å½Ã »ç¿ëÇÏ´Â ¸Þ¼Òµå
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Û½Å½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Þ¼Òµï¿½
 uint8_t*  DataHandler::GetFlexData() {
-	// ÇÃ·º½º ¼¾¼­ÀÇ µ¥ÀÌÅÍ¸¦ ¹Þ¾Æ ÇÊÅÍ Àû¿ë ÈÄ intÇü ¹è¿­(angle°ª)À» ¹ÝÈ¯.
+	// ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Þ¾ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ intï¿½ï¿½ ï¿½è¿­(angleï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½È¯.
 	flexValueArr[0] = analogRead(flex0Pin); 
 	flexValueArr[1] = analogRead(flex1Pin);
-	flexValueArr[2] = analogRead(flex2Pin); //°¡º¯ÀúÇ×
-	flexValueArr[3] = analogRead(flex3Pin); //°¡º¯ÀúÇ×
-	flexValueArr[4] = analogRead(flex4Pin); //°¡º¯ÀúÇ×
+	flexValueArr[2] = analogRead(flex2Pin); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	flexValueArr[3] = analogRead(flex3Pin); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	flexValueArr[4] = analogRead(flex4Pin); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
-	FiltFlexData(); // ÇÊÅÍ¸µ
-	return angleValue; // °¢µµ°ª ¹è¿­ ÁÖ¼Ò°ª ¹ÝÈ¯
+	FiltFlexData(); // ï¿½ï¿½ï¿½Í¸ï¿½
+	return angleValue; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ ï¿½Ö¼Ò°ï¿½ ï¿½ï¿½È¯
 }
 
 void DataHandler::FiltFlexData() {
-	// ÇÃ·º½º ¼¾¼­ÀÇ µ¥ÀÌÅÍ¸¦ ¹è¿­·Î Àü´Þ¹Þ¾Æ low pass filter¸¦ Àû¿ëÇÏ°í 50 ~ 180ÀÇ ¹üÀ§·Î º¯È¯.
-	// º¯È¯ÇÑ °ªÀ» uint8_t ¹è¿­·Î ¹ÝÈ¯. ¹ÝÈ¯ÇÏ´Â ¹è¿­ÀÇ ±æÀÌ´Â 5
+	// ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½Þ¹Þ¾ï¿½ low pass filterï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ 50 ~ 180ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯.
+	// ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ uint8_t ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½È¯. ï¿½ï¿½È¯ï¿½Ï´ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ 5
 
 	for (int i = 0; i < 5; i++) {
-		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //ÇÊÅÍ °è»ê½Ä
+		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		delay(10);
 
-		//¹üÀ§ ÁöÁ¤ (50~110 degree)  //¾Æ¸¶ ¹üÀ§°¡ ´Ù ´Þ¶ó¼­ max°ª min°ª ÃøÁ¤ÇÑµÚ¿¡ ¹üÀ§µµ ¹è¿­·Î Á¤ÇØ¼­ ÇØÁà¾ßÇÔ
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (50~110 degree)  //ï¿½Æ¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Þ¶ï¿½ maxï¿½ï¿½ minï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ÑµÚ¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		if (filteredValue[i] <= flexMin[i]) filteredValue[i] = flexMin[i];
 		else if (filteredValue[i] >= flexMax[i]) filteredValue[i] = flexMax[i];
-		angleValue[i] = map((int)filteredValue[i], flexMin[i], flexMax[i], 50, 180); //°¢µµ·Î º¯È¯
-		angleValue[i] *= -1; // 180 ~ 50 ¹üÀ§¸¦ 50 ~ 180 À¸·Î º¯È¯ÇØÁÜ
+		angleValue[i] = map((int)filteredValue[i], flexMin[i], flexMax[i], 50, 180); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
+		angleValue[i] *= -1; // 180 ~ 50 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 50 ~ 180 ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯ï¿½ï¿½ï¿½ï¿½
 		angleValue[i] += 230;
 	}
 }
 
-void DataHandler::GetZyroData() {
-	// ÀÚÀÌ·Î ¼¾¼­ÀÇ µ¥ÀÌÅÍ¸¦ ¹Þ¾Æ ¹è¿­·Î ¹ÝÈ¯.
-	   // À§¿¡¼­ ÃÊ±âÈ­°¡ Àß ¾ÈµÆ´Ù¸é ±×³É ÇÔ¼ö Á¾·á
+uint8_t* DataHandler::GetZyroData() {
+	// ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Þ¾ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½È¯.
+	   // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­ï¿½ï¿½ ï¿½ï¿½ ï¿½ÈµÆ´Ù¸ï¿½ ï¿½×³ï¿½ ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (!dmpReady) return;
 
-	// À§¿¡¼­ ÀÎÅÍ·´Æ®¿Í ¿¬°áµÈ ÇÔ¼ö¿¡¼­ mpuInterruptº¯¼ö¸¦ ¼³Á¤ÇÏ´Âµ¥
-	// ÀÌ°÷¿¡¼± ±× º¯¼ö¸¦ ±â´Ù¸®´Ù°¡ ÀÎÅÍ·´Æ®°¡ ¹ß»ýÇÏ¸é ´ÙÀ½À¸·Î ³Ñ¾î°¡°Ô 
-	// ±¸¼ºµÇ¾î ÀÖ´Ù.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ï¿½ï¿½ mpuInterruptï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´Âµï¿½
+	// ï¿½Ì°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ù¸ï¿½ï¿½Ù°ï¿½ ï¿½ï¿½ï¿½Í·ï¿½Æ®ï¿½ï¿½ ï¿½ß»ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¾î°¡ï¿½ï¿½ 
+	// ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾ï¿½ ï¿½Ö´ï¿½.
 	while (!mpuInterrupt && fifoCount < packetSize);
 
-	// ÀÎÅÍ·´Æ® º¯¼ö ÃÊ±âÈ­
+	// ï¿½ï¿½ï¿½Í·ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	mpuInterrupt = false;
-	// mpu6050 »óÅÂ ÀÐ±â
+	// mpu6050 ï¿½ï¿½ï¿½ï¿½ ï¿½Ð±ï¿½
 	mpuIntStatus = mpu.getIntStatus();
 
-	// FIFO ¹öÆÛ °³¼ö ¾ò±â
+	// FIFO ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	fifoCount = mpu.getFIFOCount();
 
-	//  fifo°¡ ³ÑÃÆ´Ù¸é?
+	//  fifoï¿½ï¿½ ï¿½ï¿½ï¿½Æ´Ù¸ï¿½?
 	if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
 		mpu.resetFIFO();
 		Serial.println(F("FIFO overflow!"));
 	}
 	else if (mpuIntStatus & 0x02) {
-		// packetSize¸¸Å­ fifo°¡ µé¾î¿Ã¶§±îÁö ´ë±â              
+		// packetSizeï¿½ï¿½Å­ fifoï¿½ï¿½ ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½              
 		while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 
-		// µ¥ÀÌÅÍ ¹Þ¾Æ ¿À±â
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¾ï¿½ ï¿½ï¿½ï¿½ï¿½
 		mpu.getFIFOBytes(fifoBuffer, packetSize);
 		fifoCount -= packetSize;
 
-		//°ª ¾ò¾î¿À±â
+		//ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		mpu.dmpGetQuaternion(&q, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 	}
 
+	return FiltZyroData();
+
 }
 
-void DataHandler::FiltZyroData(int* dataArr) {
-	// ÀÚÀÌ·Î ¼¾¼­ÀÇ µ¥ÀÌÅÍ¸¦ ¹è¿­·Î ¹Þ¾Æ 00ÇÊÅÍ¸¦ Àû¿ëÇÏ°í 00 ~ 000ÀÇ ¹üÀ§·Î º¯È¯.
-	// ¹ÝÈ¯ÇÑ °ªÀ» uint8_t ¹è¿­·Î º¯È¯. ¹ÝÈ¯ÇÏ´Â ¹è¿­ÀÇ ±æÀÌ´Â 5
+uint8_t* DataHandler::FiltZyroData() {
+	// ï¿½ï¿½ï¿½Ì·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½Þ¾ï¿½ 00ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ 00 ~ 000ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯.
+	// ï¿½ï¿½È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ uint8_t ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½È¯. ï¿½ï¿½È¯ï¿½Ï´ï¿½ ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ 5
+
+	uint8_t floatToIntArr[6];
+	floatToIntArr[0] = floatToInt(ypr[0]) / 100;
+	floatToIntArr[1] = floatToInt(ypr[0]) % 100;
+	floatToIntArr[2] = floatToInt(ypr[1]) / 100;
+	floatToIntArr[3] = floatToInt(ypr[1]) % 100;
+	floatToIntArr[4] = floatToInt(ypr[2]) / 100;
+	floatToIntArr[5] = floatToInt(ypr[2]) % 100;
+
+	return floatToIntArr;
+}
+
+uint16_t DataHandler::floatToInt(float ypr){
+	return (uint16_t)((ypr + 4) * 100);
 }
 
 void  DataHandler::SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr) {
-	// ÇÊÅÍ°¡ Àû¿ëµÈ flexDataArr°ú zyroDataArrÀ» Àü´Þ¹Þ¾Æ 
-	// arduinoToUnity¹è¿­¿¡ ´ëÀÔ.
-	// flexDataArrÀÇ ±æÀÌ´Â 5, zyroDataArrÀÇ ±æÀÌ´Â 6
+	// ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ flexDataArrï¿½ï¿½ zyroDataArrï¿½ï¿½ ï¿½ï¿½ï¿½Þ¹Þ¾ï¿½ 
+	// arduinoToUnityï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+	// flexDataArrï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ 5, zyroDataArrï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ 6
 	int i=0;
 	for(i=0;i<5;i++){
 		arduinoToUnityDataArray[i+1] = flexDataArr[i];
 	}
 
 	for(i=0;i<6;i++){
-		arduinoToUnityDataArray[i+5] = zyroDataArr[i];
+		arduinoToUnityDataArray[i+6] = zyroDataArr[i];
 	}
 }
 
 void DataHandler:: CheckAllSendData() {
-	// º¸³»±â Àü arduinoToUnityDataArray¹è¿­ÀÇ µ¥ÀÌÅÍ °Ë»ç.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ arduinoToUnityDataArrayï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½.
 }
 
 void DataHandler::SendData() {
-	// arduinoToUnityDataArray¸¦ ºí·çÅõ½º ¸ðµâÀ» ÅëÇØ¼­ Àü¼Û.
+	// arduinoToUnityDataArrayï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	int i = 0;
 
 	for (i = 0; i < 13; i++) {
@@ -216,13 +225,13 @@ void DataHandler::SendData() {
 	}
 }
 
-//µ¥ÀÌÅÍ ¼ö½Å½Ã »ç¿ëÇÏ´Â ¸Þ¼Òµå
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Å½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Þ¼Òµï¿½
 uint8_t* DataHandler::ReceiveData() {
-	// ºí·çÅõ½º ¸ðµâÀ» ÅëÇØ¼­ µ¥ÀÌÅÍ¸¦ ¹Þ¾Æ unityToArduinoDataArray ¹è¿­¿¡ ÀúÀå.
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ø¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Þ¾ï¿½ unityToArduinoDataArray ï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 
 }
 
 void DataHandler::RotateServo() {
-	// unityToArduinoDataArray¹è¿­ÀÇ µ¥ÀÌÅÍ¿¡ µû¶ó ¼­º¸¸ðÅÍ °¢µµ¸¦ È¸Àü.
+	// unityToArduinoDataArrayï¿½è¿­ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ È¸ï¿½ï¿½.
 }
 
