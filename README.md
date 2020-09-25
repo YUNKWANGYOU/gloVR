@@ -22,7 +22,7 @@ gloVR 협업을 위한 깃헙링크
 1.Arduino to Unity
 |index|0|1|2|3|4|5|6|7|8|9|10|11|12|
 |-|-|-|-|-|-|-|-|-|-|-|-|-|-|
-|1byte|str|flex1|flex2|flex3|flex4|flex5|AcX|AcY|AcZ|ZyX|ZyY|ZyZ|end|
+|1byte|str|flex1|flex2|flex3|flex4|flex5|Yaw1|Yaw2|Pitch1|Pitch2|Roll1|Roll2|end|
 
 2.Unity to Arduino
 |index|0|1|2|3|4|5|6|
