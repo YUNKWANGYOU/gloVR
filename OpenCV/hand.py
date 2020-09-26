@@ -13,6 +13,9 @@ UDP2_PORT = 8000
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client.bind((UDP_IP,UDP2_PORT))
+
+global data
+
 data, addr = client.recvfrom(200)
 
 class MyThread(threading.Thread) :
@@ -21,9 +24,10 @@ class MyThread(threading.Thread) :
         self.daemon = True
     def run(self):
         while(1) :
-            outGameData,addr = client.recvfrom(200)
+            global data
+            data,addr = client.recvfrom(200)
 
-            if list(outGameData) == [49] :
+            if list(data) == [49] :
                 print("게임나가기 버튼 클릭했음")
             time.sleep(1)
 
@@ -74,6 +78,8 @@ t.start()
 if list(data) == [115] :
     print("통신성공")
     while (1):
+
+        print(data)
 
         # Measure execution time
         start_time = time.time()
