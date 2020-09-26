@@ -13,6 +13,9 @@ UDP2_PORT = 8000
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client.bind((UDP_IP,UDP2_PORT))
+
+global data
+
 data, addr = client.recvfrom(200)
 
 class MyThread(threading.Thread) :
@@ -21,9 +24,10 @@ class MyThread(threading.Thread) :
         self.daemon = True
     def run(self):
         while(1) :
-            outGameData,addr = client.recvfrom(200)
+            global data
+            data,addr = client.recvfrom(200)
 
-            if list(outGameData) == [49] :
+            if list(data) == [49] :
                 print("게임나가기 버튼 클릭했음")
             time.sleep(1)
 
@@ -71,9 +75,12 @@ cxcyCount = 0
 
 print(data)
 t.start()
-if list(data) == [115] :
-    print("통신성공")
-    while (1):
+#if list(data) == [115] :
+print("통신성공")
+while (1):
+    if list(data) == [115] :
+
+        print(data)
 
         # Measure execution time
         start_time = time.time()
@@ -269,7 +276,7 @@ if list(data) == [115] :
         # close the output video by pressing 'ESC'
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
-            list[data] = [49]
+            break;
 
         try:
 
@@ -277,6 +284,11 @@ if list(data) == [115] :
             print((str(cx2)+","+str(cy2)))
         except:
             pass
+    elif list(data) == [49] :
+        pass
+    elif list(data) == [101] :
+        break
+
 
 cap.release()
 cv2.destroyAllWindows()
