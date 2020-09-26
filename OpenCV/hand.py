@@ -7,16 +7,15 @@ import threading
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
-
 UDP2_PORT = 8000
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-client.bind((UDP_IP,UDP2_PORT))
+pyToUnity = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+unityToPy = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+unityToPy.bind((UDP_IP,UDP2_PORT))
 
 global data
 
-data, addr = client.recvfrom(200)
+data, addr = unityToPy.recvfrom(200)
 
 class MyThread(threading.Thread) :
     def __init__(self):
@@ -25,7 +24,7 @@ class MyThread(threading.Thread) :
     def run(self):
         while(1) :
             global data
-            data,addr = client.recvfrom(200)
+            data,addr = unityToPy.recvfrom(200)
 
             if list(data) == [49] :
                 print("게임나가기 버튼 클릭했음")
@@ -121,10 +120,6 @@ while (1):
         contours, hierarchy = cv2.findContours(median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
 
-        # Draw Contours
-        # cv2.drawContours(frame, cnt, -1, (122,122,0), 3)
-        # cv2.imshow('Dilation',median)
-
         # Find Max contour area (Assume that hand is in the frame)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernel, 1)
@@ -144,9 +139,6 @@ while (1):
             ret, frame = cap.read()
             cv2.imshow("Binary", frame)
             cv2.imshow("mask2",mask2)
-            ###############################
-            # Print execution time
-            # print time.time()-start_time
 
             # close the output video by pressing 'ESC'
             k = cv2.waitKey(5) & 0xFF
@@ -175,15 +167,10 @@ while (1):
                 end = tuple(cnts[e][0])
                 far = tuple(cnts[f][0])
                 FarDefect.append(far)
-                #cv2.line(frame, start, end, [0, 255, 0], 1)
-                #cv2.circle(frame, far, 10, [100, 255, 255], 3)
-
         # Find moments of the largest contour
         moments = cv2.moments(cnts)
 
         # Central mass of first order moments 이 값 보내주면 될듯!!!!!
-        #filteredvalue = filteredvalue * (1 - alpha) + flexvalue * alpha;
-
         # TODO = LPF for cx,cy
 
         """
@@ -280,7 +267,7 @@ while (1):
 
         try:
 
-            sock.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
+            pyToUnity.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
             print((str(cx2)+","+str(cy2)))
         except:
             pass
