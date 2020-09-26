@@ -43,7 +43,7 @@ uint8_t SendArr[6];
 
 void setup() {
 
-    bluetooth.begin(115200);
+    bluetooth.begin(9600);
   
     //I2C 셋팅 및 시작   
     Wire.begin();
@@ -156,44 +156,43 @@ void loop() {
        Serial.print(ypr[2]);
        Serial.print(")");   
 
-//       char pChrBuffer[5];
-// 
-//       dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-//       bluetooth.write(pChrBuffer);
-//       bluetooth.write('\n');
-//       dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-//       bluetooth.write(pChrBuffer);
-//       bluetooth.write('\n');
-//       dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-//       bluetooth.write(pChrBuffer);
-//       bluetooth.write('\n');
-//       Serial.println("success");
-//      Serial.print("ypr[0] : ");
-//      Serial.print(ypr[0]);
-//      Serial.print("\t");
-//      Serial.print("floatToInt : ");
-//      Serial.println(floatToInt(ypr[0]));
-//      delay(100);
+       char pChrBuffer[5];
+ 
+       dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+       bluetooth.write(pChrBuffer);
+       bluetooth.write('\n');
+       dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+       bluetooth.write(pChrBuffer);
+       bluetooth.write('\n');
+       dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+       bluetooth.write(pChrBuffer);
+       bluetooth.write('\n');
+       Serial.println("success");
+       Serial.print("ypr[0] : ");
+       Serial.print(ypr[0]);
+       Serial.print("\t");
+//       Serial.print("floatToInt : ");
+//       Serial.println(floatToInt(ypr[0]));
 
-      SendArr[0] = floatToInt(ypr[0]) / 100;
-      SendArr[1] = floatToInt(ypr[0]) % 100;
-      SendArr[2] = floatToInt(ypr[1]) / 100;
-      SendArr[3] = floatToInt(ypr[1]) % 100;
-      SendArr[4] = floatToInt(ypr[2]) / 100;
-      SendArr[5] = floatToInt(ypr[2]) % 100;
-
-      int i=0;
-      bluetooth.write('{');
-      for(i = 0;i<6;i++){
-        bluetooth.write(SendArr[i]);
-        Serial.print(SendArr[i]);
-        Serial.print("\t");
-      }
-      bluetooth.write('}');
-      Serial.println("");
-      Serial.println("Send Success!");
-      
-      
+//      SendArr[0] = floatToInt(ypr[0]) / 100;
+//      SendArr[1] = floatToInt(ypr[0]) % 100;
+//      SendArr[2] = floatToInt(ypr[1]) / 100;
+//      SendArr[3] = floatToInt(ypr[1]) % 100;
+//      SendArr[4] = floatToInt(ypr[2]) / 100;
+//      SendArr[5] = floatToInt(ypr[2]) % 100;
+//
+//      int i=0;
+//      bluetooth.write('{');
+//      for(i = 0;i<6;i++){
+//        bluetooth.write(SendArr[i]);
+//        Serial.print(SendArr[i]);
+//        Serial.print("\t");
+//      }
+//      bluetooth.write('}');
+//      Serial.println("");
+//      Serial.println("Send Success!");
+//      
+//      delay(1000); 
     }
 }
 
