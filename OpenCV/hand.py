@@ -3,11 +3,7 @@ import numpy as np
 import time
 import math
 import socket
-
-
-#TODO
-#onOff = 파이썬 받은 문자열
-
+import threading
 
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
@@ -17,11 +13,22 @@ UDP2_PORT = 8000
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 client.bind((UDP_IP,UDP2_PORT))
-
 data, addr = client.recvfrom(200)
 
-print(list(data))
-print(type(data))
+class MyThread(threading.Thread) :
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.daemon = True
+    def run(self):
+        while(1) :
+            outGameData,addr = client.recvfrom(200)
+
+            if list(outGameData) == [49] :
+                print("게임나가기 버튼 클릭했음")
+            time.sleep(1)
+
+t = MyThread()
+
 
 # Open Camera object
 cap = cv2.VideoCapture(0)
@@ -62,9 +69,12 @@ cv2.createTrackbar('v', 'HSV_TrackBar', 0, 255, nothing)
 
 cxcyCount = 0
 
-if list(data) == [97] :
-    print("통신성공! ")
+print(data)
+t.start()
+if list(data) == [115] :
+    print("통신성공")
     while (1):
+
         # Measure execution time
         start_time = time.time()
 
@@ -186,8 +196,6 @@ if list(data) == [97] :
                 cy2 = cy
                 cy2 = int(cy2*(0.5) + cy*0.5)
 
-                print("cx = ",cx2)
-                print("cy = ",cy2)
                 cxcyCount = cxcyCount+1
             # 두 번째 부터 이전 값 저장하고 새로들어오는값이랑 계산해서 필터
             else :
@@ -197,8 +205,6 @@ if list(data) == [97] :
                 cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
                 cx2 = int(cx2 * (0.5) + cx * 0.5)
                 cy2 = int(cy2 * (0.5) + cy * 0.5)
-                print("cx = ", cx2)
-                print("cy = ", cy2)
 
         centerMass = (cx2, cy2)
 
@@ -249,16 +255,6 @@ if list(data) == [97] :
         # Print number of pointed fingers
         #cv2.putText(frame, str(result), (100, 100), font, 2, (255, 255, 255), 2)
 
-        # show height raised fingers
-        # cv2.putText(frame,'finger1',tuple(finger[0]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger2',tuple(finger[1]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger3',tuple(finger[2]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger4',tuple(finger[3]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger5',tuple(finger[4]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger6',tuple(finger[5]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger7',tuple(finger[6]),font,2,(255,255,255),2)
-        # cv2.putText(frame,'finger8',tuple(finger[7]),font,2,(255,255,255),2)
-
         # Print bounding rectangle
         x, y, w, h = cv2.boundingRect(cnts)
         #img = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -270,13 +266,10 @@ if list(data) == [97] :
         cv2.imshow("mask2", mask2)
         ###############################
 
-        # Print execution time
-        # print time.time()-start_time
-
         # close the output video by pressing 'ESC'
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
-            break
+            list[data] = [49]
 
         try:
 
@@ -284,13 +277,6 @@ if list(data) == [97] :
             print((str(cx2)+","+str(cy2)))
         except:
             pass
-
-        # try:
-        #     UDP_DATA,addr = sock.recvfrom(3)
-        #     print("receive data : ",UDP_DATA)
-        #     print("receive port : ",addr[0],addr[1])
-        # except:
-        #     pass
 
 cap.release()
 cv2.destroyAllWindows()
