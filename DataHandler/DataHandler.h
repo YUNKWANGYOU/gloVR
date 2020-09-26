@@ -7,9 +7,13 @@
 #include "Arduino.h"
 #include "SoftwareSerial.h"
 #include "Servo.h"
+#include "I2Cdev.h"
+#include "Wire.h"
+#include "String.h"
+#include "MPU6050_6Axis_MotionApps20.h"
 
 
-// ÃÊ±âÈ­ÇÏ±â
+// ï¿½Ê±ï¿½È­ï¿½Ï±ï¿½
 	//FlexSensor pin number
 	#define flex0Pin A0
 	#define flex1Pin A1
@@ -34,18 +38,18 @@
 class DataHandler
 {
 public:
-	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin); //ºí·çÅõ½º ÇÉ ÁöÁ¤ÇÏ°í Å¬·¡½º °´Ã¼ »ý¼º
-	//¼­º¸¸ðÅÍ ´Ü°è ¹è¿­
+	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ ï¿½è¿­
 	Servo servoArr[5];
-	//flex µ¥ÀÌÅÍ »ý¼º½Ã ÇÊ¿äÇÑ ¹è¿­, º¯¼ö
-	float alpha;                                       // ÇÊÅÍ¸µ ¹Î°¨µµ
+	//flex ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½è¿­, ï¿½ï¿½ï¿½ï¿½
+	float alpha;                                       // ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Î°ï¿½ï¿½ï¿½
 	uint16_t flexValueArr[5];
 	uint16_t filteredValue[5];
 	uint8_t angleValue[5];
 	uint16_t flexMax[5] = { 820, 690, 890, 770, 880 };
 	uint16_t flexMin[5] ={ 710, 500, 800, 580, 780 };
 
-	//zyro µ¥ÀÌÅÍ »ý¼º½Ã ÇÊ¿äÇÑ ¹è¿­, º¯¼ö
+	//zyro ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½è¿­, ï¿½ï¿½ï¿½ï¿½
 	bool dmpReady = false;
 	uint8_t mpuIntStatus;
 	uint8_t devStatus;
@@ -54,27 +58,36 @@ public:
 	uint8_t fifoBuffer[64];
 	volatile bool mpuInterrupt = false;
 
-	//Åë½ÅÀ» À§ÇÑ ¹öÆÛ, ºí·çÅõ½º °´Ã¼ ¼±¾ð
+	MPU6050 mpu;
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Yaw / Pitch / Roll
+	Quaternion q;           // [w, x, y, z]         quaternion container
+	VectorFloat gravity;    // [x, y, z]            gravity vector
+	float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+	//ï¿½ï¿½ï¿½Í·ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
+
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	char arduinoToUnityDataArray[sendDataArrayLen];
 	char unityToArduinoDataArray[receiveDataArrayLen];
-	SoftwareSerial mySerial; // ºí·çÅõ½º °´Ã¼
+	SoftwareSerial mySerial; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼
 	void (*fcnPtr)();
 	void dmpDataReady();
 
 
-	//¼­º¸ ¸ðÅÍ ¹× °¢Á¾ ¼¾¼­, ¸ðµâ ÃÊ±â°ª ÁöÁ¤
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ ï¿½Ê±â°ª ï¿½ï¿½ï¿½ï¿½
 	void InitFlex();
 	void FilterDeg(float alpha);
-	void  GetFlexRange();
+	void GetFlexRange();
 	void InitZyro();
 	void InitServo();
 	bool IsReady(int* ptr); 
 
 	//Sensor Value
-	uint8_t* GetFlexData(); //uint8_t anglevalue[5] ¹ÝÈ¯ÇÔ
-	void FiltFlexData();
-	void GetZyroData();
-	void FiltZyroData(int* dataArr);
+	uint8_t* GetFlexData(); //uint8_t anglevalue[5] ï¿½ï¿½È¯ï¿½ï¿½
+	uint8_t* FiltFlexData();
+
+	uint8_t* GetZyroData();
+	uint8_t* FiltZyroData();
+	uint16_t floatToInt(float ypr)
 	
 	//Send Data
 	void SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr);

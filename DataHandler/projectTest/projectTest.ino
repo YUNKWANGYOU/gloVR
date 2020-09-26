@@ -1,8 +1,13 @@
-#include <DataHandler.h>
+#include "DataHandler.h"
+#include <SoftwareSerial.h>
+
+#define RxPin 6
+#define TxPin 7
 
 DataHandler test(2,3);
 uint8_t *flexData;
 uint8_t *zyroData;
+SoftwareSerial mySerial(RxPin,TxPin);
 
 /*void dmpDataReady() {
     mpuInterrupt = true;
@@ -12,23 +17,24 @@ uint8_t *zyroData;
 void setup() 
 { 
   Serial.begin(9600);
+  mySerial.begin(9600);
   //pinMode(INTERRUPT_PIN, INPUT);
   //attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
   test.InitFlex();
  // test.GetFlexRange();
   test.InitZyro();
   test.InitServo();
-  test.FilterDeg(0.5);
+  test.FilterDeg(0.7);
 } 
 
 void loop() 
 { 
  //센서값 전송
  flexData = test.GetFlexData();
- test.GetZyroData();
- test.SetSendData(flexData, zyroData);
- test.CheckAllSendData();
- test.SendData();
+// test.GetZyroData();
+// test.SetSendData(flexData, zyroData);
+// test.CheckAllSendData();
+// test.SendData();
 
  //서보모터 값, 진동모터 값 송신
  if(test.ReceiveData()){
@@ -75,4 +81,12 @@ void loop()
  Serial.print(data3); 
  Serial.print(' ');
  Serial.println(data4); 
+
+ int i=0;
+ for(i=0;i<5;i++){
+  mySerial.write(*(flexData+i));
+ }
+
+ delay(5);
+ 
 }
