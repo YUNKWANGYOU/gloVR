@@ -13,23 +13,26 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 
 
-// �ʱ�ȭ�ϱ�
+// PIN setting
 	//FlexSensor pin number
 	#define flex0Pin A0
 	#define flex1Pin A1
 	#define flex2Pin A2
 	#define flex3Pin A3
-	#define flex4Pin A4
+	#define flex4Pin A6
 
-	//ZyroSensor pin number
-	#define INTERRUPT_PIN 12
+	//GyroSensor pin number
+	#define INTERRUPT_PIN 2
+	#define SDAPIN A4
+	#define SCLPIN A5
 
-	//Survo motor pin number
-	#define servo0Pin 5
-	#define servo1Pin 6
-	#define servo2Pin 9
-	#define servo3Pin 10
-	#define servo4Pin 11
+	//Servo motor pin number
+	#define servo0Pin 3
+	#define servo1Pin 4
+	#define servo2Pin 5
+	#define servo3Pin 6
+	#define servo4Pin 7
+
 	//define data len
 	#define sendDataArrayLen 13
 	#define receiveDataArrayLen 7
@@ -38,18 +41,16 @@
 class DataHandler
 {
 public:
-	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin); //�������� �� �����ϰ� Ŭ���� ��ü ����
-	//�������� �ܰ� �迭
-	Servo servoArr[5];
-	//flex ������ ������ �ʿ��� �迭, ����
-	float alpha;                                       // ���͸� �ΰ���
+	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin); 
+	Servo servoArr[5]; 
+	float alpha;                                      
 	uint16_t flexValueArr[5];
 	uint16_t filteredValue[5];
 	uint8_t angleValue[5];
 	uint16_t flexMax[5] = { 820, 690, 890, 770, 880 };
 	uint16_t flexMin[5] ={ 710, 500, 800, 580, 780 };
 
-	//zyro ������ ������ �ʿ��� �迭, ����
+	//Gyro setting
 	bool dmpReady = false;
 	uint8_t mpuIntStatus;
 	uint8_t devStatus;
@@ -59,30 +60,30 @@ public:
 	volatile bool mpuInterrupt = false;
 
 	MPU6050 mpu;
-	//���� ���� ���� ������ Yaw / Pitch / Roll
+
+	//Yaw / Pitch / Roll
 	Quaternion q;           // [w, x, y, z]         quaternion container
 	VectorFloat gravity;    // [x, y, z]            gravity vector
 	float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
-	//���ͷ�Ʈ ����
-
-	//����� ���� ����, �������� ��ü ����
+	
+	//Arduino to Unity  setting
 	char arduinoToUnityDataArray[sendDataArrayLen];
 	char unityToArduinoDataArray[receiveDataArrayLen];
-	SoftwareSerial mySerial; // �������� ��ü
-	void (*fcnPtr)();
+	SoftwareSerial mySerial;
+	void (*fcnPtr)(); //dmp intterupt check
 	void dmpDataReady();
 
 
-	//���� ���� �� ���� ����, ��� �ʱⰪ ����
+	//Flex setting
 	void InitFlex();
 	void FilterDeg(float alpha);
-	void GetFlexRange();
+	void GetFlexRange(); //주석처리되어있음
 	void InitZyro();
 	void InitServo();
-	bool IsReady(int* ptr); 
+	bool IsReady(int* ptr); //? ptr?
 
 	//Sensor Value
-	uint8_t* GetFlexData(); //uint8_t anglevalue[5] ��ȯ��
+	uint8_t* GetFlexData(); //uint8_t anglevalue[5]
 	uint8_t* FiltFlexData();
 
 	uint8_t* GetZyroData();
