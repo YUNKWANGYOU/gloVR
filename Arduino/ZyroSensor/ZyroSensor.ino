@@ -10,6 +10,11 @@
 //mpu6050 라이브러리 생성
 MPU6050 mpu;
 
+//test용 flex데이터
+uint8_t flexData[5];
+uint8_t flexMax = 180;
+uint8_t flexMin = 50;
+
 //인터럽트핀 
 #define INTERRUPT_PIN 2  // use pin 2 on Arduino Uno & most boards
 
@@ -39,11 +44,12 @@ void dmpDataReady() {
 }
 
 SoftwareSerial bluetooth(BT_RXD, BT_TXD);
-uint8_t SendArr[6];
 
 void setup() {
 
     bluetooth.begin(9600);
+
+    InitFlexData();
   
     //I2C 셋팅 및 시작   
     Wire.begin();
@@ -106,6 +112,11 @@ void setup() {
 }
 
 void loop() {
+
+  char pChrBuffer[5];
+  int i=0;
+
+  
    // 위에서 초기화가 잘 안됐다면 그냥 함수 종료
    if (!dmpReady) return;
 
@@ -155,47 +166,48 @@ void loop() {
        Serial.print("(");
        Serial.print(ypr[2]);
        Serial.print(")");   
-
-       char pChrBuffer[5];
- 
-       dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-       bluetooth.write(pChrBuffer);
-       bluetooth.write('\n');
-       dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-       bluetooth.write(pChrBuffer);
-       bluetooth.write('\n');
-       dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-       bluetooth.write(pChrBuffer);
-       bluetooth.write('\n');
-       Serial.println("success");
-       Serial.print("ypr[0] : ");
-       Serial.print(ypr[0]);
-       Serial.print("\t");
-//       Serial.print("floatToInt : ");
-//       Serial.println(floatToInt(ypr[0]));
-
-//      SendArr[0] = floatToInt(ypr[0]) / 100;
-//      SendArr[1] = floatToInt(ypr[0]) % 100;
-//      SendArr[2] = floatToInt(ypr[1]) / 100;
-//      SendArr[3] = floatToInt(ypr[1]) % 100;
-//      SendArr[4] = floatToInt(ypr[2]) / 100;
-//      SendArr[5] = floatToInt(ypr[2]) % 100;
-//
-//      int i=0;
-//      bluetooth.write('{');
-//      for(i = 0;i<6;i++){
-//        bluetooth.write(SendArr[i]);
-//        Serial.print(SendArr[i]);
-//        Serial.print("\t");
-//      }
-//      bluetooth.write('}');
-//      Serial.println("");
-//      Serial.println("Send Success!");
-//      
-//      delay(1000); 
     }
+
+    bluetooth.write(200);
+    for(i=0;i<5;i++){
+    bluetooth.write(flexData[i]);
+    }
+  
+  dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+  bluetooth.write(pChrBuffer);
+  bluetooth.write('\n');
+  dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+  bluetooth.write(pChrBuffer);
+  bluetooth.write('\n');
+  dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+  bluetooth.write(pChrBuffer);
+  bluetooth.write('\n');
+  
+  bluetooth.write(201);
+  Serial.println("Sucess");
+  
+  IncreaseFlexData();
 }
 
-uint16_t floatToInt(float ypr){
-  return (uint16_t)((ypr + 4) * 100);
+
+void IncreaseFlexData(){
+  int i=0;
+  
+  for(i=0;i<5;i++){
+    
+    if(flexData[i] > flexMax){
+      flexData[i] = flexMin;
+    }
+    
+    flexData[i] = flexData[i] + 1;
+  }
+  
+}
+
+void InitFlexData(){
+  flexData[0] = 50;
+  flexData[1] = 100;
+  flexData[2] = 80;
+  flexData[3] = 120;
+  flexData[4] = 150;
 }
