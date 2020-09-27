@@ -30,8 +30,8 @@ def run():
         # ------------------------------
 
         # cameras variables
-        left_camera_source = 1
-        right_camera_source = 2
+        left_camera_source = 0
+        right_camera_source = 1
         pixel_width = 640
         pixel_height = 480
         angle_width = 78
@@ -554,7 +554,8 @@ class Frame_Motion:
         frame3 = cv2.dilate(frame3, self.dilation_kernel, iterations=self.dilation_iterations)
 
         # get contours
-        frame3, contours, hierarchy = cv2.findContours(frame3, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, hierarchy = cv2.findContours(frame3, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        frame3,hierarchy = cv2.findContours(frame3, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         # targets
         targets = []
