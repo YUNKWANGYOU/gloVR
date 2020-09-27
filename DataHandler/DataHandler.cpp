@@ -7,6 +7,7 @@
 #include "I2Cdev.h"
 #include "Wire.h"
 #include "String.h"
+#include "Servo.h"
 
 
 DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
@@ -85,6 +86,12 @@ void DataHandler::InitZyro() {
 
 void DataHandler::InitServo() {
 
+	Servo servoArr[0];
+	Servo servoArr[1];
+	Servo servoArr[2];
+	Servo servoArr[3];
+	Servo servoArr[4];
+	
 	servoArr[0].attach(servo0Pin);
 	servoArr[1].attach(servo1Pin);
 	servoArr[2].attach(servo2Pin);
@@ -108,32 +115,32 @@ void  DataHandler::GetFlexRange() {
 	}
 }
 */
-//������ �۽Ž� ����ϴ� �޼ҵ�
+
 uint8_t*  DataHandler::GetFlexData() {
-	// �÷��� ������ �����͸� �޾� ���� ���� �� int�� �迭(angle��)�� ��ȯ.
+	
 	flexValueArr[0] = analogRead(flex0Pin); 
 	flexValueArr[1] = analogRead(flex1Pin);
-	flexValueArr[2] = analogRead(flex2Pin); //��������
-	flexValueArr[3] = analogRead(flex3Pin); //��������
-	flexValueArr[4] = analogRead(flex4Pin); //��������
+	flexValueArr[2] = analogRead(flex2Pin); 
+	flexValueArr[3] = analogRead(flex3Pin); 
+	flexValueArr[4] = analogRead(flex4Pin); 
 
-	FiltFlexData(); // ���͸�
-	return angleValue; // ������ �迭 �ּҰ� ��ȯ
+	FiltFlexData();
+	return angleValue; 
 }
 
 void DataHandler::FiltFlexData() {
-	// �÷��� ������ �����͸� �迭�� ���޹޾� low pass filter�� �����ϰ� 50 ~ 180�� ������ ��ȯ.
-	// ��ȯ�� ���� uint8_t �迭�� ��ȯ. ��ȯ�ϴ� �迭�� ���̴� 5
+	// low pass filter 50 ~ 180
+	// uint8_t 5
 
 	for (int i = 0; i < 5; i++) {
 		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //���� ����
 		delay(10);
 
-		//���� ���� (50~110 degree)  //�Ƹ� ������ �� �޶� max�� min�� �����ѵڿ� ������ �迭�� ���ؼ� �������
+		// (50~110 degree)  // max min 
 		if (filteredValue[i] <= flexMin[i]) filteredValue[i] = flexMin[i];
 		else if (filteredValue[i] >= flexMax[i]) filteredValue[i] = flexMax[i];
 		angleValue[i] = map((int)filteredValue[i], flexMin[i], flexMax[i], 50, 180); //������ ��ȯ
-		angleValue[i] *= -1; // 180 ~ 50 ������ 50 ~ 180 ���� ��ȯ����
+		angleValue[i] *= -1; // 180 ~ 50 50 ~ 180 
 		angleValue[i] += 230;
 	}
 }
@@ -199,9 +206,9 @@ uint16_t DataHandler::floatToInt(float ypr){
 }
 
 void  DataHandler::SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr) {
-	// ���Ͱ� ����� flexDataArr�� zyroDataArr�� ���޹޾� 
-	// arduinoToUnity�迭�� ����.
-	// flexDataArr�� ���̴� 5, zyroDataArr�� ���̴� 6
+	//  flexDataArr zyroDataArr
+	// arduinoToUnity
+	// flexDataArr 5, zyroDataArr 6
 	int i=0;
 	for(i=0;i<5;i++){
 		arduinoToUnityDataArray[i+1] = flexDataArr[i];
@@ -213,11 +220,11 @@ void  DataHandler::SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr) {
 }
 
 void DataHandler:: CheckAllSendData() {
-	// ������ �� arduinoToUnityDataArray�迭�� ������ �˻�.
+	// arduinoToUnityDataArray
 }
 
 void DataHandler::SendData() {
-	// arduinoToUnityDataArray�� �������� ����� ���ؼ� ����.
+	// arduinoToUnityDataArray
 	int i = 0;
 
 	for (i = 0; i < 13; i++) {
@@ -225,13 +232,77 @@ void DataHandler::SendData() {
 	}
 }
 
-//������ ���Ž� ����ϴ� �޼ҵ�
+
 uint8_t* DataHandler::ReceiveData() {
-	// �������� ����� ���ؼ� �����͸� �޾� unityToArduinoDataArray �迭�� ����.
+	// unityToArduinoDataArray
 
 }
 
 void DataHandler::RotateServo() {
-	// unityToArduinoDataArray�迭�� �����Ϳ� ���� �������� ������ ȸ��.
+	// unityToArduinoDataArray
+	if (unityToArduinoDataArray[0] == '0') {
+		servoArr[0].write(0);
+	}
+	else if (unityToArduinoDataArray[0] == '1') {
+		servoArr[0].write(60);
+	}
+	else if (unityToArduinoDataArray[0] == '2') {
+		servoArr[0].write(120);
+	}
+	else if (unityToArduinoDataArray[0] == '3') {
+		servoArr[0].write(150);
+	}
+
+	if (unityToArduinoDataArray[1] == '0') {
+		servoArr[1].write(0);
+	}
+	else if (unityToArduinoDataArray[1] == '1') {
+		servoArr[1].write(60);
+	}
+	else if (unityToArduinoDataArray[1] == '2') {
+		servoArr[1].write(120);
+	}
+	else if (unityToArduinoDataArray[1] == '3') {
+		servoArr[1].write(150);
+	}
+
+	if (unityToArduinoDataArray[2] == '0') {
+		servoArr[2].write(0);
+	}
+	else if (unityToArduinoDataArray[2] == '1') {
+		servoArr[2].write(60);
+	}
+	else if (unityToArduinoDataArray[2] == '2') {
+		servoArr[2].write(120);
+	}
+	else if (unityToArduinoDataArray[2] == '3') {
+		servoArr[2].write(150);
+	}
+
+	if (unityToArduinoDataArray[3] == '0') {
+		servoArr[3].write(0);
+	}
+	else if (unityToArduinoDataArray[3] == '1') {
+		servoArr[3].write(60);
+	}
+	else if (unityToArduinoDataArray[3] == '2') {
+		servoArr[3].write(120);
+	}
+	else if (unityToArduinoDataArray[3] == '3') {
+		servoArr[3].write(150);
+	}
+
+	if (unityToArduinoDataArray[4] == '0') {
+		servoArr[4].write(0);
+	}
+	else if (unityToArduinoDataArray[4] == '1') {
+		servoArr[4].write(60);
+	}
+	else if (unityToArduinoDataArray[4] == '2') {
+		servoArr[4].write(120);
+	}
+	else if (unityToArduinoDataArray[4] == '3') {
+		servoArr[4].write(150);
+	}
 }
 
