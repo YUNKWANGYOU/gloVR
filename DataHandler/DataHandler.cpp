@@ -224,12 +224,28 @@ void DataHandler:: CheckAllSendData() {
 }
 
 void DataHandler::SendData() {
-	// arduinoToUnityDataArray
-	int i = 0;
+	// arduinoToUnityDataArray�� �������� ����� ���ؼ� ����.
 
-	for (i = 0; i < 13; i++) {
-		mySerial.write(arduinoToUnityDataArray[i]);
+	char pChrBuffer[5];
+  	int i=0;
+
+	mySerial.write(200);
+
+	for(i=0;i<5;i++){
+	mySerial.write(flexData[i]);
 	}
+  
+	dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+	mySerial.write(pChrBuffer);
+	mySerial.write('\n');
+	dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+	mySerial.write(pChrBuffer);
+	mySerial.write('\n');
+	dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
+	mySerial.write(pChrBuffer);
+	mySerial.write('\n');
+	
+	mySerial.write(201);
 }
 
 
