@@ -25,6 +25,10 @@
 	#define servo3Pin 6
 	#define servo4Pin 7
 
+	//vibe moter pin number
+	#define vibePin 9
+	#define vibeDuration 10
+
 	//define data len
 	#define receiveDataArrayLen 7
 
@@ -34,32 +38,46 @@ class DataHandler
 public:
 	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin);
 	Servo servoArr[5];
+
 	float alpha;                                      
 	uint16_t filteredValue[5];
-	uint16_t flexMax[5] = { 820, 690, 890, 770, 880 };
-	uint16_t flexMin[5] ={ 710, 500, 800, 580, 780 };
+	uint8_t angleValue[5];
+	uint16_t flexValueArr[5];
+	uint16_t flexMax[5] = { 830, 740, 900, 790, 890 };
+	uint16_t flexMin[5] ={ 710, 460, 710, 510, 740 };
+
+	uint8_t vibeNum = 0;
+	bool vibeState = false;
 	
 	//Arduino to Unity  setting
 	char unityToArduinoDataArray[receiveDataArrayLen];
 	SoftwareSerial mySerial;
 
-	//Flex setting
+	//Init
 	void InitFlex();
 	void FilterDeg(float alpha);
-	void GetFlexRange(); //주석처리되어있음
 	void InitServo();
+	void InitVibe();
+
 	bool IsReady(int* ptr); //? ptr?
+
+	// void GetFlexRange(); //주석처리되어있음
+
 
 	//Sensor Value
 	uint8_t* GetFlexData(); //uint8_t anglevalue[5]
-	uint8_t* FiltFlexData(uint16_t* flexValueArr);
+	void FiltFlexData();
 	
-	//Send Data
+	//Send and Receive Data
 	void SendData(uint8_t * flexData, char * ypr);
+	void ReceiveData();
 
-	//Receive Data
-	uint8_t* ReceiveData();
+	//Rotate
 	void RotateServo();
+
+	//make vibe
+	void MakeVibe();
+	void TurnVibeOn();
 };
 
 #endif

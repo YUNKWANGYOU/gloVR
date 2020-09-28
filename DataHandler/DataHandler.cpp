@@ -12,6 +12,7 @@ DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
 	pinMode(txPin, OUTPUT);
 	mySerial.begin(9600);
 }
+
 void DataHandler::InitFlex() {
 	//pin mode setting
 	pinMode(flex0Pin, INPUT);
@@ -49,6 +50,13 @@ void DataHandler::InitServo() {
 		servoArr[i].write(0);
 	}
 }
+
+void DataHandler::InitVibe(){
+	pinMode(vibePin,OUTPUT);
+	vibeState = false;
+	vibeNum = 0;
+}
+
 /*
 void  DataHandler::GetFlexRange() {
 	delay(2000);
@@ -64,7 +72,6 @@ void  DataHandler::GetFlexRange() {
 */
 
 uint8_t* DataHandler::GetFlexData() {
-	uint16_t flexValueArr[5];
 	
 	flexValueArr[0] = analogRead(flex0Pin);
 	flexValueArr[1] = analogRead(flex1Pin);
@@ -72,14 +79,15 @@ uint8_t* DataHandler::GetFlexData() {
 	flexValueArr[3] = analogRead(flex3Pin); 
 	flexValueArr[4] = analogRead(flex4Pin); 
 
-	return FiltFlexData(flexValueArr);
+	FiltFlexData();
+
+	return angleValue;
+	// return flexValueArr;
 }
 
-uint8_t* DataHandler::FiltFlexData(uint16_t* flexValueArr) {
+void DataHandler::FiltFlexData() {
 	// low pass filter 50 ~ 180
 	// uint8_t 5
-
-	uint8_t angleValue[5];
 
 	for (int i = 0; i < 5; i++) {
 		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //���� ����
@@ -93,7 +101,6 @@ uint8_t* DataHandler::FiltFlexData(uint16_t* flexValueArr) {
 		angleValue[i] += 230;
 	}
 
-	return angleValue;
 }
 
 void DataHandler::SendData(uint8_t * flexData, char * ypr) {
@@ -122,9 +129,23 @@ void DataHandler::SendData(uint8_t * flexData, char * ypr) {
 }
 
 
-uint8_t* DataHandler::ReceiveData() {
+void DataHandler::ReceiveData() {
 	// unityToArduinoDataArray
+	int i=0;
 
+	if(mySerial.available()){
+		String recvData = mySerial.readStringUntil('\n');
+
+		if(recvData[0] == 's'){
+
+			for(i=0;i<7;i++){
+				unityToArduinoDataArray[i] = recvData[i];
+				if(recvData[i] == 'e'){
+					break;
+				}
+			}
+		}
+	}
 }
 
 void DataHandler::RotateServo() {
@@ -147,5 +168,26 @@ void DataHandler::RotateServo() {
 		}
 	}
 
+}
+
+void DataHandler::MakeVibe(){
+	if(vibeState){
+		analogWrite(vibePin,0);
+		vibeNum += 1;
+	}
+	else{
+		analogWrite(vibePin,255);
+	}
+
+	if(vibeNum > vibeDuration){
+		vibeNum = 0;
+		vibeState = false;
+	}
+}
+
+void DataHandler::TurnVibeOn(){
+	if(!vibeState){
+		vibeState = true;
+	}
 }
 
