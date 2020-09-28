@@ -1,11 +1,8 @@
 
 // include this library's description file
-#include "MPU6050_6Axis_MotionApps20.h"
 #include "DataHandler.h"
 #include "Arduino.h"
 #include "SoftwareSerial.h"
-#include "I2Cdev.h"
-#include "Wire.h"
 #include "String.h"
 #include "Servo.h"
 
@@ -40,57 +37,7 @@ void DataHandler::FilterDeg(float alpha) {
 }
 
 
-void DataHandler::dmpDataReady() {
-	this->mpuInterrupt = true;
-}
-
-void (DataHandler::*fcnPtr)() = &DataHandler::dmpDataReady;
-
-void DataHandler::InitZyro() {
-
-	Wire.begin();
-	Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
-	//MPU 6050 ���� �ʱ�ȭ
-
-	mpu.initialize();
-	//���ͷ�Ʈ��(2) �Է����� ����
-	pinMode(INTERRUPT_PIN, INPUT);
-	attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), fcnPtr, RISING);
-
-	//DMP �ʱ�ȭ
-	//DMP�� MPU6050���ο� �ִ� Digital Motion Processor
-
-	devStatus = mpu.dmpInitialize();
-
-	// �ʱ� ���� ����.... �ϴ� �״�� �ΰ� �н�
-	mpu.setXGyroOffset(220);
-	mpu.setYGyroOffset(76);
-	mpu.setZGyroOffset(-85);
-	mpu.setZAccelOffset(1788);
-
-	//�ʱ�ȭ�� �ߵǾ��ٸ�?
-	if (devStatus == 0) {
-
-		//DMP Ȱ��ȭ
-		Serial.println(F("Enabling DMP..."));
-		mpu.setDMPEnabled(true);
-		mpuIntStatus = mpu.getIntStatus();
-		dmpReady = true;
-		// FIFO ��Ŷ ������ ������
-		packetSize = mpu.dmpGetFIFOPacketSize();
-	}
-	else {
-	}
-}
-
-
 void DataHandler::InitServo() {
-
-	Servo servoArr[0];
-	Servo servoArr[1];
-	Servo servoArr[2];
-	Servo servoArr[3];
-	Servo servoArr[4];
 	
 	servoArr[0].attach(servo0Pin);
 	servoArr[1].attach(servo1Pin);
@@ -116,21 +63,23 @@ void  DataHandler::GetFlexRange() {
 }
 */
 
-uint8_t*  DataHandler::GetFlexData() {
+uint8_t* DataHandler::GetFlexData() {
+	uint16_t flexValueArr[5];
 	
-	flexValueArr[0] = analogRead(flex0Pin); 
+	flexValueArr[0] = analogRead(flex0Pin);
 	flexValueArr[1] = analogRead(flex1Pin);
 	flexValueArr[2] = analogRead(flex2Pin); 
 	flexValueArr[3] = analogRead(flex3Pin); 
 	flexValueArr[4] = analogRead(flex4Pin); 
 
-	FiltFlexData();
-	return angleValue; 
+	return FiltFlexData(flexValueArr);
 }
 
-void DataHandler::FiltFlexData() {
+uint8_t* DataHandler::FiltFlexData(uint16_t* flexValueArr) {
 	// low pass filter 50 ~ 180
 	// uint8_t 5
+
+	uint8_t angleValue[5];
 
 	for (int i = 0; i < 5; i++) {
 		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //���� ����
@@ -143,90 +92,14 @@ void DataHandler::FiltFlexData() {
 		angleValue[i] *= -1; // 180 ~ 50 50 ~ 180 
 		angleValue[i] += 230;
 	}
+
+	return angleValue;
 }
 
-uint8_t* DataHandler::GetZyroData() {
-	// ���̷� ������ �����͸� �޾� �迭�� ��ȯ.
-	   // ������ �ʱ�ȭ�� �� �ȵƴٸ� �׳� �Լ� ����
-	if (!dmpReady) return;
-
-	// ������ ���ͷ�Ʈ�� ����� �Լ����� mpuInterrupt������ �����ϴµ�
-	// �̰����� �� ������ ��ٸ��ٰ� ���ͷ�Ʈ�� �߻��ϸ� �������� �Ѿ�� 
-	// �����Ǿ� �ִ�.
-	while (!mpuInterrupt && fifoCount < packetSize);
-
-	// ���ͷ�Ʈ ���� �ʱ�ȭ
-	mpuInterrupt = false;
-	// mpu6050 ���� �б�
-	mpuIntStatus = mpu.getIntStatus();
-
-	// FIFO ���� ���� ���
-	fifoCount = mpu.getFIFOCount();
-
-	//  fifo�� ���ƴٸ�?
-	if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-		mpu.resetFIFO();
-		Serial.println(F("FIFO overflow!"));
-	}
-	else if (mpuIntStatus & 0x02) {
-		// packetSize��ŭ fifo�� ���ö����� ���              
-		while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-
-		// ������ �޾� ����
-		mpu.getFIFOBytes(fifoBuffer, packetSize);
-		fifoCount -= packetSize;
-
-		//�� ������
-		mpu.dmpGetQuaternion(&q, fifoBuffer);
-		mpu.dmpGetGravity(&gravity, &q);
-		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-	}
-
-	return FiltZyroData();
-
-}
-
-uint8_t* DataHandler::FiltZyroData() {
-	// ���̷� ������ �����͸� �迭�� �޾� 00���͸� �����ϰ� 00 ~ 000�� ������ ��ȯ.
-	// ��ȯ�� ���� uint8_t �迭�� ��ȯ. ��ȯ�ϴ� �迭�� ���̴� 5
-
-	uint8_t floatToIntArr[6];
-	floatToIntArr[0] = floatToInt(ypr[0]) / 100;
-	floatToIntArr[1] = floatToInt(ypr[0]) % 100;
-	floatToIntArr[2] = floatToInt(ypr[1]) / 100;
-	floatToIntArr[3] = floatToInt(ypr[1]) % 100;
-	floatToIntArr[4] = floatToInt(ypr[2]) / 100;
-	floatToIntArr[5] = floatToInt(ypr[2]) % 100;
-
-	return floatToIntArr;
-}
-
-uint16_t DataHandler::floatToInt(float ypr){
-	return (uint16_t)((ypr + 4) * 100);
-}
-
-void  DataHandler::SetSendData(uint8_t* flexDataArr, uint8_t* zyroDataArr) {
-	//  flexDataArr zyroDataArr
-	// arduinoToUnity
-	// flexDataArr 5, zyroDataArr 6
-	int i=0;
-	for(i=0;i<5;i++){
-		arduinoToUnityDataArray[i+1] = flexDataArr[i];
-	}
-
-	for(i=0;i<6;i++){
-		arduinoToUnityDataArray[i+6] = zyroDataArr[i];
-	}
-}
-
-void DataHandler:: CheckAllSendData() {
-	// arduinoToUnityDataArray
-}
-
-void DataHandler::SendData() {
+void DataHandler::SendData(uint8_t * flexData, char * ypr) {
 	// arduinoToUnityDataArray�� �������� ����� ���ؼ� ����.
 
-	char pChrBuffer[5];
+	char pChrBuffer[6];
   	int i=0;
 
 	mySerial.write(200);
@@ -256,69 +129,23 @@ uint8_t* DataHandler::ReceiveData() {
 
 void DataHandler::RotateServo() {
 	// unityToArduinoDataArray
-	if (unityToArduinoDataArray[0] == '0') {
-		servoArr[0].write(0);
-	}
-	else if (unityToArduinoDataArray[0] == '1') {
-		servoArr[0].write(60);
-	}
-	else if (unityToArduinoDataArray[0] == '2') {
-		servoArr[0].write(120);
-	}
-	else if (unityToArduinoDataArray[0] == '3') {
-		servoArr[0].write(150);
+
+	int i=0;
+
+	for(i=1;i<6;i++){
+		if (unityToArduinoDataArray[i] == '0') {
+		servoArr[i].write(0);
+		}
+		else if (unityToArduinoDataArray[i] == '1') {
+			servoArr[i].write(60);
+		}
+		else if (unityToArduinoDataArray[i] == '2') {
+			servoArr[i].write(120);
+		}
+		else if (unityToArduinoDataArray[i] == '3') {
+			servoArr[i].write(150);
+		}
 	}
 
-	if (unityToArduinoDataArray[1] == '0') {
-		servoArr[1].write(0);
-	}
-	else if (unityToArduinoDataArray[1] == '1') {
-		servoArr[1].write(60);
-	}
-	else if (unityToArduinoDataArray[1] == '2') {
-		servoArr[1].write(120);
-	}
-	else if (unityToArduinoDataArray[1] == '3') {
-		servoArr[1].write(150);
-	}
-
-	if (unityToArduinoDataArray[2] == '0') {
-		servoArr[2].write(0);
-	}
-	else if (unityToArduinoDataArray[2] == '1') {
-		servoArr[2].write(60);
-	}
-	else if (unityToArduinoDataArray[2] == '2') {
-		servoArr[2].write(120);
-	}
-	else if (unityToArduinoDataArray[2] == '3') {
-		servoArr[2].write(150);
-	}
-
-	if (unityToArduinoDataArray[3] == '0') {
-		servoArr[3].write(0);
-	}
-	else if (unityToArduinoDataArray[3] == '1') {
-		servoArr[3].write(60);
-	}
-	else if (unityToArduinoDataArray[3] == '2') {
-		servoArr[3].write(120);
-	}
-	else if (unityToArduinoDataArray[3] == '3') {
-		servoArr[3].write(150);
-	}
-
-	if (unityToArduinoDataArray[4] == '0') {
-		servoArr[4].write(0);
-	}
-	else if (unityToArduinoDataArray[4] == '1') {
-		servoArr[4].write(60);
-	}
-	else if (unityToArduinoDataArray[4] == '2') {
-		servoArr[4].write(120);
-	}
-	else if (unityToArduinoDataArray[4] == '3') {
-		servoArr[4].write(150);
-	}
 }
 
