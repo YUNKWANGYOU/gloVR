@@ -4,7 +4,7 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
-DataHandler test(2,3);
+DataHandler test(8,9);
 uint8_t *flexData;
 
 bool SendButton = false;
@@ -144,19 +144,17 @@ void dmpDataReady() {
 
 void setup() 
 {
-
   test.InitFlex();
 	test.FilterDeg(0.5);
 	test.InitServo();
 	test.InitVibe();
 
   InitMPU();
-
 } 
 
 void loop() 
 {
-  newData = test.GetFlexData();
+  newData = test.ReceiveData();
 
   if(newData){
     // when recieve program start message, end message, vibration module message
@@ -174,6 +172,7 @@ void loop()
     }
     //when servo motor control data, vibe motor control data
     else if(test.unityToArduinoDataArray[6] == 'e'){
+      Serial.println("rotate servo");
       test.RotateServo();
       test.TurnVibeOn();
     }
@@ -182,6 +181,7 @@ void loop()
   }
 
   if(SendButton){
+    Serial.println("send data");
     flexData = test.GetFlexData();
     getYPR();
     test.SendData(flexData,ypr);
@@ -213,6 +213,6 @@ void loop()
   */
 
   delay(5);
-  Serial.println("success");
+  Serial.print("s");
  
 }

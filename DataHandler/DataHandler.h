@@ -26,7 +26,7 @@
 	#define servo4Pin 7
 
 	//vibe moter pin number
-	#define vibePin 9
+	#define vibePin 10
 	#define vibeDuration 10
 
 	//define data len
