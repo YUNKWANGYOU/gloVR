@@ -32,7 +32,6 @@ class MyThread(threading.Thread) :
 
 t = MyThread()
 
-
 # Open Camera object
 cap = cv2.VideoCapture(0)
 
@@ -42,7 +41,6 @@ cap.set(4, 450)
 
 def nothing():
     pass
-
 
 # Function to find angle between two vectors
 def Angle(v1, v2):
@@ -159,7 +157,7 @@ while (1):
         # Get defect points and draw them in the original image
         FarDefect = []
         if defects is None:
-            nothing()
+            pass
         else:
             for i in range(defects.shape[0]):
                 s, e, f, d = defects[i, 0]
