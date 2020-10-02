@@ -3,6 +3,7 @@ import numpy as np
 import time
 import math
 import socket
+import threading
 
 
 #TODO
@@ -12,11 +13,26 @@ import socket
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 
+class CamThread(threading.Thread) :
+    def __init__(self,CamNum):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        cap = cv2.VideoCapture(CamNum)
+        cap.set(3, 500)
+        cap.set(4, 450)
+    def run(self):
+        while(1):
+            cap.read()
+
+cam2 = CamThread(1)
+
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Open Camera object
 cap = cv2.VideoCapture(0)
+
+cam2.start()
 
 # Decrease frame size
 cap.set(3, 500)
@@ -162,7 +178,7 @@ while (1):
 
     """
     1.cx2,cy2에 이전의 cx, cy 저장 (맨 처음에는 같은 값 저장)
-    2.cx,cy에 새로 들어오는 값 저장 
+    2.cx,cy에 새로 들어오는 값 저장
     """
 
     if moments['m00'] != 0:
