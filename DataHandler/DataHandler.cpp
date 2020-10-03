@@ -103,7 +103,7 @@ void DataHandler::FiltFlexData() {
 
 }
 
-void DataHandler::SendData(uint8_t * flexData, char * ypr) {
+void DataHandler::SendData(uint8_t * flexData, float * ypr) {
 	// arduinoToUnityDataArray�� �������� ����� ���ؼ� ����.
 
 	char pChrBuffer[6];
@@ -129,7 +129,7 @@ void DataHandler::SendData(uint8_t * flexData, char * ypr) {
 }
 
 
-void DataHandler::ReceiveData() {
+bool DataHandler::ReceiveData() {
 	// unityToArduinoDataArray
 	int i=0;
 
@@ -144,8 +144,10 @@ void DataHandler::ReceiveData() {
 					break;
 				}
 			}
+			return true;
 		}
 	}
+	return false;
 }
 
 void DataHandler::RotateServo() {
@@ -189,5 +191,21 @@ void DataHandler::TurnVibeOn(){
 	if(!vibeState){
 		vibeState = true;
 	}
+}
+
+void DataHandler::ClearArr(){
+	int i=0;
+	for(i=0;i<7;i++){
+		unityToArduinoDataArray[i] = 0;
+	}
+}
+
+void DataHandler::DetachServo(){
+
+		servoArr[0].detach();
+		servoArr[1].detach();
+		servoArr[2].detach();
+		servoArr[3].detach();
+		servoArr[4].detach();
 }
 
