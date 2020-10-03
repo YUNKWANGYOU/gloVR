@@ -149,6 +149,8 @@ void setup()
 	test.InitServo();
 	test.InitVibe();
 
+  
+
   InitMPU();
 } 
 
@@ -163,10 +165,16 @@ void loop()
       //when message is start message
       if(test.unityToArduinoDataArray[1] == '1'){
         SendButton = true;
+        test.ClearArr();
       }
       //when message is end message
       else if(test.unityToArduinoDataArray[1] == '3'){
         SendButton = false;
+        test.ClearArr();
+      }
+      else if(test.unityToArduinoDataArray[1] == '2'){
+        test.TurnVibeOn();
+        test.ClearArr();
       }
 
     }
@@ -174,7 +182,9 @@ void loop()
     else if(test.unityToArduinoDataArray[6] == 'e'){
       Serial.println("rotate servo");
       test.RotateServo();
-      test.TurnVibeOn();
+      Serial.println(test.unityToArduinoDataArray[6]);
+      test.ClearArr();
+      Serial.println(test.unityToArduinoDataArray[6]);
     }
 
 

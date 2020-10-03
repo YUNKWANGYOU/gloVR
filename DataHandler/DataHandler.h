@@ -26,7 +26,7 @@
 	#define servo4Pin 7
 
 	//vibe moter pin number
-	#define vibePin 10
+	#define vibePin 9
 	#define vibeDuration 10
 
 	//define data len
@@ -69,8 +69,8 @@ public:
 	void FiltFlexData();
 	
 	//Send and Receive Data
-	void SendData(uint8_t * flexData, char * ypr);
-	void ReceiveData();
+	void SendData(uint8_t * flexData, float * ypr);
+	bool ReceiveData();
 
 	//Rotate
 	void RotateServo();
@@ -78,6 +78,9 @@ public:
 	//make vibe
 	void MakeVibe();
 	void TurnVibeOn();
+
+	void ClearArr();
+	void DetachServo();
 };
 
 #endif
