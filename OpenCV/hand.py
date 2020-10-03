@@ -280,7 +280,11 @@ while (1):
         cv2.imshow("1", frame)
         cv2.imshow("2", frame2)
         ###############################
-
+        cz = (100-cx2-cx4)/(cx2+cx4)
+        cz = -1*cz
+        cz = cz*1000
+        cz = cz-750
+        print(cz)
         # close the output video by pressing 'ESC'
         k = cv2.waitKey(5) & 0xFF
         if k == 27:

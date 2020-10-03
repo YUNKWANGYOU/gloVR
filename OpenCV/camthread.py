@@ -286,7 +286,6 @@ class CamThread(threading.Thread) :
             #     print("receive port : ",addr[0],addr[1])
             # except:
             #     pass
-        cz = (100-cx-cx2)/(x1+x2)
         print("cz=",cz)
         self.cap.release()
         cv2.destroyAllWindows()

@@ -80,12 +80,10 @@ while (1):
     # Dilation increase skin color area
     # Erosion increase skin color area
     dilation = cv2.dilate(mask, kernel_ellipse, iterations=1)
-    erosion = cv2.erode(dilation, kernel_square, iterations=1)
     median = cv2.medianBlur(dilation, 5)
     ret, thresh = cv2.threshold(median, 127, 255, 0)
 
     dilation2 = cv2.dilate(mask2, kernel_ellipse2, iterations=1)
-    erosion2 = cv2.erode(dilation2, kernel_square2, iterations=1)
     median2 = cv2.medianBlur(dilation2, 5)
     ret2, thresh2 = cv2.threshold(median2, 127, 255, 0)
 
@@ -280,10 +278,11 @@ while (1):
     # Print execution time
     # print time.time()-start_time
 
-    cz = (100-cx2-cx4)/(cx2+cx4)
-    cz = -1*cz
-    cz = cz*100
-    print(cz)
+    cz = 1/(cx2-cx4)
+    cz = cz*10000
+    cz = -cz
+
+    print(int(cz))
     # close the output video by pressing 'ESC'
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
