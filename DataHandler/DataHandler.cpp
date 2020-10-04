@@ -129,25 +129,61 @@ void DataHandler::SendData(uint8_t * flexData, float * ypr) {
 }
 
 
-bool DataHandler::ReceiveData() {
+void DataHandler::ReceiveData() {
 	// unityToArduinoDataArray
 	int i=0;
 
-	if(mySerial.available()){
-		String recvData = mySerial.readStringUntil('\n');
+	while(mySerial.available() > 0 && newData == false){
+		rc = mySerial.read();
+		Serial.println(rc);
 
-		if(recvData[0] == 's'){
-
-			for(i=0;i<7;i++){
-				unityToArduinoDataArray[i] = recvData[i];
-				if(recvData[i] == 'e'){
-					break;
+		if(recvInProgress == true){
+			if(rc != endMarker){
+				unityToArduinoDataArray[ndx] = rc;
+				ndx++;
+				if(ndx >= receiveDataArrayLen - 1){
+					ndx = receiveDataArrayLen - 2;
 				}
 			}
-			return true;
+			else{
+				if(ndx <= receiveDataArrayLen - 2){
+					unityToArduinoDataArray[ndx + 1] = '\0';
+					recvInProgress = false;
+					recvLen = ndx;
+					ndx = 0;
+					newData = true;
+				}
+				else{
+					ClearArr();
+					recvInProgress = false;
+					ndx = 0;
+					newData = false;
+				}
+			}
+			Serial.println(unityToArduinoDataArray);
+		}
+
+		else if(rc == startMarker){
+			Serial.println("okay go");
+			recvInProgress = true;
 		}
 	}
-	return false;
+
+	// if(mySerial.available()){
+	// 	String recvData = mySerial.readStringUntil('\n');
+
+	// 	if(recvData[0] == 's'){
+
+	// 		for(i=0;i<7;i++){
+	// 			unityToArduinoDataArray[i] = recvData[i];
+	// 			if(recvData[i] == 'e'){
+	// 				break;
+	// 			}
+	// 		}
+	// 		return true;
+	// 	}
+	// }
+	// return false;
 }
 
 void DataHandler::RotateServo() {
@@ -155,7 +191,7 @@ void DataHandler::RotateServo() {
 
 	int i=0;
 
-	for(i=1;i<6;i++){
+	for(i=0;i<5;i++){
 		if (unityToArduinoDataArray[i] == '0') {
 		servoArr[i].write(0);
 		}
@@ -196,7 +232,7 @@ void DataHandler::TurnVibeOn(){
 void DataHandler::ClearArr(){
 	int i=0;
 	for(i=0;i<7;i++){
-		unityToArduinoDataArray[i] = 0;
+		unityToArduinoDataArray[i] = '\0';
 	}
 }
 

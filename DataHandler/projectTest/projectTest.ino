@@ -156,44 +156,57 @@ void setup()
 
 void loop() 
 {
-  newData = test.ReceiveData();
+  test.ReceiveData();
 
-  if(newData){
+  if(test.newData == true){
     // when recieve program start message, end message, vibration module message
-    if(test.unityToArduinoDataArray[2] == 'e'){
+    Serial.print("unityToArduinoDataArray : ");
+    Serial.println(test.unityToArduinoDataArray);
+    Serial.print("recvLen : ");
+    Serial.println(test.recvLen);
+
+    if(test.recvLen == 1){
 
       //when message is start message
-      if(test.unityToArduinoDataArray[1] == '1'){
+      if(test.unityToArduinoDataArray[0] == '1'){
         SendButton = true;
         test.ClearArr();
       }
       //when message is end message
-      else if(test.unityToArduinoDataArray[1] == '3'){
+      else if(test.unityToArduinoDataArray[0] == '3'){
         SendButton = false;
         test.ClearArr();
       }
-      else if(test.unityToArduinoDataArray[1] == '2'){
+      else if(test.unityToArduinoDataArray[0] == '2'){
         test.TurnVibeOn();
         test.ClearArr();
       }
 
     }
     //when servo motor control data, vibe motor control data
-    else if(test.unityToArduinoDataArray[6] == 'e'){
+    else if(test.recvLen == 5){
       Serial.println("rotate servo");
       test.RotateServo();
-      Serial.println(test.unityToArduinoDataArray[6]);
       test.ClearArr();
-      Serial.println(test.unityToArduinoDataArray[6]);
     }
 
-
+    test.newData = false;
   }
 
   if(SendButton){
     Serial.println("send data");
     flexData = test.GetFlexData();
     getYPR();
+    // testCode
+    flexData[0] = 50;
+    flexData[0] = 50;
+    flexData[0] = 50;
+    flexData[0] = 50;
+    flexData[0] = 50;
+    ypr[0] = 3.2;
+    ypr[1] = 3.2;
+    ypr[2] = 3.2;
+    
     test.SendData(flexData,ypr);
   }
 
@@ -221,8 +234,5 @@ void loop()
   mySerial.write(*(flexData+i));
   }
   */
-
   delay(5);
-  Serial.print("s");
- 
 }
