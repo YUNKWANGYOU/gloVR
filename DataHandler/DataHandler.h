@@ -39,7 +39,7 @@ public:
 	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin);
 	Servo servoArr[5];
 
-	float alpha;                                      
+	float alpha;
 	uint16_t filteredValue[5];
 	uint8_t angleValue[5] = {0,};
 	uint16_t flexValueArr[5];
