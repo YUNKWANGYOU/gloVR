@@ -13,7 +13,6 @@ import threading
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 
-global backstate
 backstate = 0
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
