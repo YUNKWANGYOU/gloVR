@@ -13,7 +13,7 @@ import threading
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 
-
+backstate = 0
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -52,6 +52,14 @@ cxcyCount2 = 0
 
 print("통신성공! ")
 while (1):
+
+    if backstate == 1 :
+        cv2.destroyAllWindows()
+        back = cv2.waitKey(0)
+        if back == 69 or back == 101:
+            break
+        continue
+
 
     # Capture frames from the camera
     ret, frame = cap.read()
@@ -138,7 +146,7 @@ while (1):
         # close the output video by pressing 'ESC'
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
-            break
+            backstate = 1
 
         continue
 
@@ -286,7 +294,7 @@ while (1):
     # close the output video by pressing 'ESC'
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
-        break
+        backstate = 1
 
     try:
 
@@ -294,6 +302,10 @@ while (1):
         #print((str(cx2)+","+str(cy2)))
     except:
         pass
+
+
+
+
 
 cap.release()
 cv2.destroyAllWindows()
