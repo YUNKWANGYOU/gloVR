@@ -39,9 +39,9 @@ public:
 	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin);
 	Servo servoArr[5];
 
-	float alpha;                                      
+	float alpha;
 	uint16_t filteredValue[5];
-	uint8_t angleValue[5];
+	uint8_t angleValue[5] = {0,};
 	uint16_t flexValueArr[5];
 	uint16_t flexMax[5] = { 830, 740, 900, 790, 890 };
 	uint16_t flexMin[5] ={ 710, 460, 710, 510, 740 };
@@ -51,6 +51,14 @@ public:
 	
 	//Arduino to Unity  setting
 	char unityToArduinoDataArray[receiveDataArrayLen];
+	boolean recvInProgress = false;
+	byte ndx = 0;
+	byte recvLen = 0;
+	char startMarker = 's';
+	char endMarker = 'e';
+	char rc;
+	boolean newData = false;
+
 	SoftwareSerial mySerial;
 
 	//Init
@@ -70,7 +78,7 @@ public:
 	
 	//Send and Receive Data
 	void SendData(uint8_t * flexData, float * ypr);
-	bool ReceiveData();
+	void ReceiveData();
 
 	//Rotate
 	void RotateServo();
