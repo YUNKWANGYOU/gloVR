@@ -40,7 +40,6 @@ while (1):
     PAUSE = cv2.waitKey(5)& 0xFF
     if PAUSE == 69 or PAUSE == 101 : #'e' or 'E'
         cap.release()
-        cap2.release()
         cv2.destroyAllWindows()
         while 1 :
             START = cv2.waitKey(100)
