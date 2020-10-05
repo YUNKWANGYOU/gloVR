@@ -33,7 +33,20 @@ cv2.createTrackbar('h', 'HSV_TrackBar', 0, 179, nothing)
 cv2.createTrackbar('s', 'HSV_TrackBar', 0, 255, nothing)
 cv2.createTrackbar('v', 'HSV_TrackBar', 0, 255, nothing)
 cxcyCount = 0
+
+
 while (1):
+    # TODO: 창 닫기
+    PAUSE = cv2.waitKey(5)& 0xFF
+    if PAUSE == 69 or PAUSE == 101 : #'e' or 'E'
+        cap.release()
+        cap2.release()
+        cv2.destroyAllWindows()
+        while 1 :
+            START = cv2.waitKey(100)
+            if START == 83 or START == 115 : #'s' or 'S'
+                break
+
     ret, frame = cap.read()
     blur = cv2.blur(frame, (3, 3))
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
