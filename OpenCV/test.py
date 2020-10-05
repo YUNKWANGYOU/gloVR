@@ -120,5 +120,4 @@ while (1):
     except:
         pass
 cap.release()
-cap2.release()
 cv2.destroyAllWindows()
