@@ -5,6 +5,23 @@ import math
 import socket
 import threading
 
+global status
+global cxcyCount,cxcyCount2
+
+def nothing():
+    pass
+
+def LPF(a,b):
+    c = a*0.5 + b*0.5
+    return int(c)
+
+def Depth(a,b):
+    d = 1/(a-b)
+    d = -d*10000
+
+cxcyCount = 0
+cxcyCount2 = 0
+
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 UDP2_PORT = 8000
@@ -13,24 +30,25 @@ pyToUnity = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 unityToPy = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 unityToPy.bind((UDP_IP,UDP2_PORT))
 
-global data
-
-data, addr = unityToPy.recvfrom(200)
-
-class MyThread(threading.Thread) :
+class UDPHandler(threading.Thread) :
     def __init__(self):
         threading.Thread.__init__(self)
         self.daemon = True
     def run(self):
         while(1) :
-            global data
-            data,addr = unityToPy.recvfrom(200)
+            global status
+            status,addr = unityToPy.recvfrom(200)
 
-            if list(data) == [49] :
-                print("게임나가기 버튼 클릭했음")
+            if list(status) == [115] :
+                print("START")
+            elif list(status) == [49] :
+                print("BACK")
+            elif list(status) == [101] :
+                print("END")
             time.sleep(1)
 
-t = MyThread()
+udp = UDPHandler()
+udp.start()
 
 # Open Camera object
 cap = cv2.VideoCapture(0)
@@ -42,9 +60,6 @@ cap.set(4, 450)
 
 cap2.set(3,500)
 cap2.set(4,450)
-
-def nothing():
-    pass
 
 # Creating a window for HSV track bars
 cv2.namedWindow('HSV_TrackBar')
@@ -63,17 +78,10 @@ cv2.createTrackbar('h2', 'HSV_TrackBar2', 0, 179, nothing)
 cv2.createTrackbar('s2', 'HSV_TrackBar2', 0, 255, nothing)
 cv2.createTrackbar('v2', 'HSV_TrackBar2', 0, 255, nothing)
 
-cxcyCount = 0
-cxcyCount2 = 0
-
-print(data)
-t.start()
-#if list(data) == [115] :
-print("통신성공")
 while (1):
-    if list(data) == [115] :
+    if list(status) == [115] :
 
-        print(data)
+        print(status)
 
         # Capture frames from the camera
         ret, frame = cap.read()
@@ -150,9 +158,6 @@ while (1):
 
             cv2.imshow("1", frame)
             cv2.imshow("2", frame2)
-            ###############################
-            # Print execution time
-            # print time.time()-start_time
 
             # close the output video by pressing 'ESC'
             k = cv2.waitKey(5) & 0xFF
@@ -216,9 +221,9 @@ while (1):
                 cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
 
                 cx2 = cx
-                cx2 = int(cx2*(0.5) + cx*0.5)
+                cx2 = LPF(cx2,cx)
                 cy2 = cy
-                cy2 = int(cy2*(0.5) + cy*0.5)
+                cy2 = LPF(cy2,cy)
 
                 cxcyCount = cxcyCount+1
             # 두 번째 부터 이전 값 저장하고 새로들어오는값이랑 계산해서 필터
@@ -227,8 +232,8 @@ while (1):
                 cy2 = cy
                 cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
                 cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
-                cx2 = int(cx2 * (0.5) + cx * 0.5)
-                cy2 = int(cy2 * (0.5) + cy * 0.5)
+                cx2 = LPF(cx2,cx)
+                cy2 = LPF(cy2,cy)
 
         if moments2['m00'] != 0:
             # 맨 처음에는 이전의 값을 같은 값으로 넣어주기
@@ -238,9 +243,9 @@ while (1):
                 cy3 = int(moments2['m01'] / moments2['m00'])  # cy = M01/M00
 
                 cx4 = cx3
-                cx4 = int(cx4*(0.5) + cx3*0.5)
+                cx4 = LPF(cx4,cx3)
                 cy4 = cy3
-                cy4 = int(cy4*(0.5) + cy3*0.5)
+                cy4 = LPF(cy4,cy3)
 
                 print("cx2 = ",cx4)
                 print("cy2 = ",cy4)
@@ -251,11 +256,10 @@ while (1):
                 cy4 = cy3
                 cx3 = int(moments2['m10'] / moments2['m00'])  # cx = M10/M00
                 cy3 = int(moments2['m01'] / moments2['m00'])  # cy = M01/M00
-                cx4 = int(cx4 * (0.5) + cx3 * 0.5)
-                cy4 = int(cy4 * (0.5) + cy3 * 0.5)
+                cx4 = LPF(cx4,cx3)
+                cy4 = LPF(cy4,cy3)
                 print("cx = ", cx4)
                 print("cy = ", cy4)
-
 
         centerMass = (cx2, cy2)
         centerMass2 = (cx4,cy4)
@@ -281,9 +285,7 @@ while (1):
         cv2.imshow("2", frame2)
         ###############################
 
-        cz = 1/(cx2-cx4)
-        cz = cz*10000
-        cz = -cz
+        cz = Depth(cx2,cx4)
 
         print(int(cz))
         # close the output video by pressing 'ESC'
@@ -292,16 +294,15 @@ while (1):
             break;
 
         try:
-
-            pyToUnity.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
-            print((str(cx2)+","+str(cy2)))
+            pyToUnity.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT) )
+            print((str(cx2)+","+str(cy2))+","+str(cz))
         except:
             pass
-    elif list(data) == [49] :
+    elif list(status) == [49] :
         pass
-    elif list(data) == [101] :
+    elif list(status) == [101] :
         break
 
-
 cap.release()
+cap2.release()
 cv2.destroyAllWindows()
