@@ -42,7 +42,7 @@ while (1):
         cap.release()
         cv2.destroyAllWindows()
         while 1 :
-            START = cv2.waitKey(100)
+            START = cv2.waitKey(100)&0xFF
             if START == 83 or START == 115 : #'s' or 'S'
                 break
 
