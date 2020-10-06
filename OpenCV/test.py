@@ -113,7 +113,7 @@ while (1):
     cv2.imshow("1", frame)
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
-        break
+        break;
     try:
         pyToUnity.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
         print((str(cx2)+","+str(cy2)))
