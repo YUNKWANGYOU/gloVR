@@ -289,16 +289,14 @@ while (1):
     cz = cz*10000
     cz = -cz
 
-    print(int(cz))
     # close the output video by pressing 'ESC'
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         backstate = 1
 
     try:
-
-        sock.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
-        #print((str(cx2)+","+str(cy2)))
+        sock.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT) )
+        print((str(cx2)+","+str(cy2)+","+str(int(cz))))
     except:
         pass
 
@@ -307,4 +305,5 @@ while (1):
 
 
 cap.release()
+cap2.release()
 cv2.destroyAllWindows()
