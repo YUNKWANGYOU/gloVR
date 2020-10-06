@@ -49,6 +49,7 @@ cv2.createTrackbar('v2', 'HSV_TrackBar2', 0, 255, nothing)
 
 cxcyCount = 0
 cxcyCount2 = 0
+czCount = 0
 
 print("통신성공! ")
 while (1):
@@ -284,12 +285,8 @@ while (1):
 
     # Print execution time
     # print time.time()-start_time
-
-    cz = 1/(cx2-cx4)
-    cz = cz*10000
-    cz = -cz
-
     # close the output video by pressing 'ESC'
+    cz = cx4
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         backstate = 1
