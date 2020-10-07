@@ -4,7 +4,7 @@
 #include "MPU6050_6Axis_MotionApps20.h"
 #include "Wire.h"
 
-DataHandler test(8,9);
+DataHandler test(9,8);
 uint8_t *flexData;
 
 bool SendButton = false;
@@ -152,6 +152,9 @@ void setup()
   
 
   InitMPU();
+  getYPR();
+  Serial.println("Done");
+  
 } 
 
 void loop() 
@@ -197,16 +200,6 @@ void loop()
     Serial.println("send data");
     flexData = test.GetFlexData();
     getYPR();
-    // testCode
-    flexData[0] = 50;
-    flexData[0] = 50;
-    flexData[0] = 50;
-    flexData[0] = 50;
-    flexData[0] = 50;
-    ypr[0] = 3.2;
-    ypr[1] = 3.2;
-    ypr[2] = 3.2;
-    
     test.SendData(flexData,ypr);
   }
 

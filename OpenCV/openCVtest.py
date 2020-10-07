@@ -285,9 +285,7 @@ while (1):
     # Print execution time
     # print time.time()-start_time
 
-    cz = 1/(cx2-cx4)
-    cz = cz*10000
-    cz = -cz
+    cz = cx4
 
     # close the output video by pressing 'ESC'
     k = cv2.waitKey(5) & 0xFF
@@ -299,10 +297,6 @@ while (1):
         print((str(cx2)+","+str(cy2)+","+str(int(cz))))
     except:
         pass
-
-
-
-
 
 cap.release()
 cap2.release()
