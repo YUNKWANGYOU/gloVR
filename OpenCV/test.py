@@ -21,7 +21,13 @@ class MyThread(threading.Thread) :
 
             if list(data) == [49] :
                 print("게임나가기 버튼 클릭했음")
-            time.sleep(1)
+def LPF(a,b):
+    c = a*0.5 + b*0.5
+    return int(c)
+
+udp = MyThread()
+udp.start()
+
 cap = cv2.VideoCapture(0)
 cap.set(3, 500)
 cap.set(4, 450)
@@ -32,10 +38,11 @@ h, s, v = 100, 100, 100
 cv2.createTrackbar('h', 'HSV_TrackBar', 0, 179, nothing)
 cv2.createTrackbar('s', 'HSV_TrackBar', 0, 255, nothing)
 cv2.createTrackbar('v', 'HSV_TrackBar', 0, 255, nothing)
+global cxcyCount
 cxcyCount = 0
 
-
-while (1):
+def main():
+    global cxcyCount
     # TODO: 창 닫기
     PAUSE = cv2.waitKey(5)& 0xFF
     if PAUSE == 69 or PAUSE == 101 : #'e' or 'E'
@@ -44,7 +51,7 @@ while (1):
         while 1 :
             START = cv2.waitKey(100)&0xFF
             if START == 83 or START == 115 : #'s' or 'S'
-                break
+                return 0
 
     ret, frame = cap.read()
     blur = cv2.blur(frame, (3, 3))
@@ -72,8 +79,8 @@ while (1):
         cv2.imshow("1", frame)
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
-            break
-        continue
+            return 0
+        return 0
     cnts = contours[ci]
     hull = cv2.convexHull(cnts)
     hull2 = cv2.convexHull(cnts, returnPoints=False)
@@ -94,17 +101,17 @@ while (1):
             cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
             cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
             cx2 = cx
-            cx2 = int(cx2*(0.5) + cx*0.5)
+            cx2 = LPF(cx2,cx)
             cy2 = cy
-            cy2 = int(cy2*(0.5) + cy*0.5)
+            cy2 = LPF(cy2,cy)
             cxcyCount = cxcyCount+1
         else :
             cx2 = cx
             cy2 = cy
             cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
             cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
-            cx2 = int(cx2 * (0.5) + cx * 0.5)
-            cy2 = int(cy2 * (0.5) + cy * 0.5)
+            cx2 = LPF(cx2,cx)
+            cy2 = LPF(cy2,cy)
     centerMass = (cx2, cy2)
     cv2.circle(frame, centerMass, 7, [100, 0, 255], 2)
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -113,11 +120,16 @@ while (1):
     cv2.imshow("1", frame)
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
-        break;
+        return 0
     try:
-        pyToUnity.sendto((str(cx2)+","+str(cy2)).encode(), (UDP_IP, UDP_PORT) )
-        print((str(cx2)+","+str(cy2)))
+        self.pyToUnity.sendto((str(x)+","+str(y)).encode(), (self.UDP_IP, self.UDP_PORT) )
+        print((str(x)+","+str(y)))
     except:
         pass
-cap.release()
-cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    while 1 :
+        main()
+    cap.release()
+    cap2.release()
+    cv2.destroyAllWindows()
