@@ -9,24 +9,29 @@ global status
 def nothing():
     pass
 
+# Low Pass Filter
 def LPF(a,b):
     c = a*0.5 + b*0.5
     return int(c)
 
+# Exit when you press 'esc' key
 def ESC():
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         return -1
     return 1
 
+# Set UDP IP and Port
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 UDP2_PORT = 8000
 
+# Make Socket Object
 pyToUnity = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 unityToPy = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 unityToPy.bind((UDP_IP,UDP2_PORT))
 
+# UDP Thread Class
 class UDPHandler(threading.Thread) :
     def __init__(self):
         threading.Thread.__init__(self)
@@ -95,7 +100,6 @@ def detectHand() :
     # Create a binary image with where white will be skin colors and rest is black
     mask = cv2.inRange(hsv, np.array([45,65,65]), np.array([75,255, 255]))
     mask2 = cv2.inRange(hsv2, np.array([45,65,65]), np.array([75,255, 255]))
-    #mask2 = cv2.inRange(hsv, np.array([2, 50, 50]), np.array([15, 255, 255]))
 
     # Kernel matrices for morphological transformation
     kernel_square = np.ones((11, 11), np.uint8)
@@ -114,7 +118,6 @@ def detectHand() :
 
 
     # Find contours of the filtered frame
-
     contours, hierarchy = cv2.findContours(median, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours2, hierarchy2 = cv2.findContours(median2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -127,7 +130,6 @@ def detectHand() :
 
     max_area = 100
     ci = 0
-    
     for i in range(len(contours)):
         cnt = contours[i]
         area = cv2.contourArea(cnt)
@@ -144,8 +146,7 @@ def detectHand() :
             max_area2 = area2
             ci2 = j
 
-        # Largest area contour
-
+    #Print default Video when contours are None
     if (not contours) or (not contours2) :
         ret, frame = cap.read()
         ret2, frame2 = cap2.read()
@@ -156,6 +157,7 @@ def detectHand() :
 
     cnts = contours[ci]
     cnts2 = contours2[ci2]
+
     # Find convex hull
     hull = cv2.convexHull(cnts)
     hull3 = cv2.convexHull(cnts2)
@@ -170,6 +172,7 @@ def detectHand() :
     # Get defect points and draw them in the original image
     FarDefect = []
     FarDefect2 = []
+
     if defects is None:
         pass
     else:
@@ -179,7 +182,6 @@ def detectHand() :
             end = tuple(cnts[e][0])
             far = tuple(cnts[f][0])
             FarDefect.append(far)
-    # Find moments of the largest contour
 
     if defects2 is None:
         pass
@@ -190,6 +192,7 @@ def detectHand() :
             end2 = tuple(cnts2[e2][0])
             far2 = tuple(cnts2[f2][0])
             FarDefect2.append(far2)
+
     # Find moments of the largest contour
     moments = cv2.moments(cnts)
     moments2 = cv2.moments(cnts2)
@@ -247,7 +250,6 @@ def detectHand() :
     centerMass2 = (cx4,cy4)
 
     # Draw center mass
-
     cv2.circle(frame, centerMass, 7, [100, 0, 255], 2)
     cv2.circle(frame2, centerMass2, 7, [100, 0, 255], 2)
 
@@ -257,18 +259,14 @@ def detectHand() :
     cv2.putText(frame, 'Center', tuple(centerMass), font, 2, (255, 255, 255), 2)
     cv2.putText(frame2, 'Center', tuple(centerMass2), font2, 2, (255, 255, 255), 2)
 
-
-    # Print number of pointed fingers
-    # Print bounding rectangle
-    x, y, w, h = cv2.boundingRect(cnts)
-    x2, y2, w2, h2 = cv2.boundingRect(cnts2)
     ##### Show final image ########
     cv2.imshow("1", frame)
     cv2.imshow("2", frame2)
     ###############################
 
-    cz = cx4 # 90 degree of angle
+    cz = cx4 # Depth of Hand when the angle is 90 degree
 
+    # Send X,Y,Z data of hand to Unity
     try:
         pyToUnity.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT))
         print((str(cx2)+","+str(cy2)+","+str(int(cz))))
@@ -278,12 +276,13 @@ def detectHand() :
 if __name__ == '__main__':
 
     global status
+
+    # Receive initial status form Unity
     status,addr = unityToPy.recvfrom(200)
 
     udp = UDPHandler()
     udp.start()
 
-    print(status)
     global cxcyCount
     global cxcyCount2
     global cx,cx2,cx3,cx4
@@ -294,14 +293,15 @@ if __name__ == '__main__':
     cxcyCount = 0
     cxcyCount2 = 0
 
-    # start = 1
     while 1 :
+
         # Starting or Ending OpenCV
-        if list(status) == [115]: #start
+        if list(status) == [115]: #START
             detectHand()
-        elif list(status) == [49]: #end
+        elif list(status) == [49]: #END
             break
-        #Press ESC button when you want to force quit opencv program
+
+        # Press ESC button when you want to force quit opencv program
         stop = ESC()
         if stop == -1 :
             break
