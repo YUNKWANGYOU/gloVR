@@ -1,12 +1,10 @@
 import cv2
 import numpy as np
 import time
-import math
 import socket
 import threading
 
 global status
-global cxcyCount,cxcyCount2
 
 def nothing():
     pass
@@ -21,10 +19,6 @@ def ESC():
         return -1
     return 1
 
-
-cxcyCount = 0
-cxcyCount2 = 0
-
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 UDP2_PORT = 8000
@@ -37,6 +31,7 @@ class UDPHandler(threading.Thread) :
     def __init__(self):
         threading.Thread.__init__(self)
         self.daemon = True
+
     def run(self):
         while(1) :
             global status
@@ -79,7 +74,13 @@ cv2.createTrackbar('s2', 'HSV_TrackBar2', 0, 255, nothing)
 cv2.createTrackbar('v2', 'HSV_TrackBar2', 0, 255, nothing)
 
 def detectHand() :
-    #Capture frames from the camera
+
+    global cxcyCount
+    global cxcyCount2
+    global cx,cx2,cx3,cx4
+    global cy,cy2,cy3,cy4
+
+    # Capture frames from the camera
     ret, frame = cap.read()
     ret2, frame2 = cap2.read()
 
@@ -99,18 +100,15 @@ def detectHand() :
     # Kernel matrices for morphological transformation
     kernel_square = np.ones((11, 11), np.uint8)
     kernel_ellipse = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-
     kernel_square2 = np.ones((11, 11), np.uint8)
     kernel_ellipse2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-    # Perform morphological transformations to filter out the background noise
-    dilation = cv2.dilate(mask2, kernel_ellipse, iterations=1)
-    erosion = cv2.erode(dilation, kernel_square, iterations=1)
+    # Erosion increase skin color area
+    dilation = cv2.dilate(mask, kernel_ellipse, iterations=1)
     median = cv2.medianBlur(dilation, 5)
     ret, thresh = cv2.threshold(median, 127, 255, 0)
 
     dilation2 = cv2.dilate(mask2, kernel_ellipse2, iterations=1)
-    erosion2 = cv2.erode(dilation2, kernel_square2, iterations=1)
     median2 = cv2.medianBlur(dilation2, 5)
     ret2, thresh2 = cv2.threshold(median2, 127, 255, 0)
 
@@ -128,10 +126,8 @@ def detectHand() :
     mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernel2, 1)
 
     max_area = 100
-    max_area2 = 100
     ci = 0
-    ci2 = 0
-
+    
     for i in range(len(contours)):
         cnt = contours[i]
         area = cv2.contourArea(cnt)
@@ -139,6 +135,8 @@ def detectHand() :
             max_area = area
             ci = i
 
+    max_area2 = 100
+    ci2 = 0
     for j in range(len(contours2)):
         cnt2 = contours2[j]
         area2 = cv2.contourArea(cnt2)
@@ -154,12 +152,10 @@ def detectHand() :
 
         cv2.imshow("1", frame)
         cv2.imshow("2", frame2)
-
         return 0
 
     cnts = contours[ci]
     cnts2 = contours2[ci2]
-
     # Find convex hull
     hull = cv2.convexHull(cnts)
     hull3 = cv2.convexHull(cnts2)
@@ -183,6 +179,7 @@ def detectHand() :
             end = tuple(cnts[e][0])
             far = tuple(cnts[f][0])
             FarDefect.append(far)
+    # Find moments of the largest contour
 
     if defects2 is None:
         pass
@@ -196,9 +193,6 @@ def detectHand() :
     # Find moments of the largest contour
     moments = cv2.moments(cnts)
     moments2 = cv2.moments(cnts2)
-
-    # Central mass of first order moments
-    # LPF for cx,cy
 
     """
     1.cx2,cy2에 이전의 cx, cy 저장 (맨 처음에는 같은 값 저장)
@@ -263,37 +257,49 @@ def detectHand() :
     cv2.putText(frame, 'Center', tuple(centerMass), font, 2, (255, 255, 255), 2)
     cv2.putText(frame2, 'Center', tuple(centerMass2), font2, 2, (255, 255, 255), 2)
 
+
+    # Print number of pointed fingers
     # Print bounding rectangle
     x, y, w, h = cv2.boundingRect(cnts)
     x2, y2, w2, h2 = cv2.boundingRect(cnts2)
-    #img = cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
     ##### Show final image ########
     cv2.imshow("1", frame)
     cv2.imshow("2", frame2)
     ###############################
 
-    cz = cx4
+    cz = cx4 # 90 degree of angle
 
     try:
-        pyToUnity.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT) )
-        print((str(cx2)+","+str(cy2))+","+str(cz))
+        pyToUnity.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT))
+        print((str(cx2)+","+str(cy2)+","+str(int(cz))))
     except:
         pass
 
 if __name__ == '__main__':
 
-    #global status
-    #status,addr = unityToPy.recvfrom(200)
-    #udp = UDPHandler()
-    #udp.start()
-    #print(status)
-    start = 1
+    global status
+    status,addr = unityToPy.recvfrom(200)
+
+    udp = UDPHandler()
+    udp.start()
+
+    print(status)
+    global cxcyCount
+    global cxcyCount2
+    global cx,cx2,cx3,cx4
+    global cy,cy2,cy3,cy4
+
+    cx,cx2,cx3,cx4 = 0,0,0,0
+    cy,cy2,cy3,cy4 = 0,0,0,0
+    cxcyCount = 0
+    cxcyCount2 = 0
+
+    # start = 1
     while 1 :
         # Starting or Ending OpenCV
-        if start == 1 :#list(status) == [115]: #start
+        if list(status) == [115]: #start
             detectHand()
-        elif list(status) == [101]: #end
+        elif list(status) == [49]: #end
             break
         #Press ESC button when you want to force quit opencv program
         stop = ESC()

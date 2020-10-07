@@ -132,6 +132,8 @@ void DataHandler::SendData(uint8_t * flexData, float * ypr) {
 void DataHandler::ReceiveData() {
 	// unityToArduinoDataArray
 	int i=0;
+	Serial.print("new Data : ");
+	Serial.println(newData);
 
 	while(mySerial.available() > 0 && newData == false){
 		rc = mySerial.read();
