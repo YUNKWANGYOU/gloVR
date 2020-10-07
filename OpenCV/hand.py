@@ -97,7 +97,7 @@ def detectHand() :
     hsv = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
     hsv2 = cv2.cvtColor(blur2,cv2.COLOR_BGR2HSV)
 
-    # Create a binary image with where white will be skin colors and rest is black
+    # Create a binary image with where white will be Green colors and rest is black
     mask = cv2.inRange(hsv, np.array([45,65,65]), np.array([75,255, 255]))
     mask2 = cv2.inRange(hsv2, np.array([45,65,65]), np.array([75,255, 255]))
 
@@ -107,7 +107,7 @@ def detectHand() :
     kernel_square2 = np.ones((11, 11), np.uint8)
     kernel_ellipse2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-    # Erosion increase skin color area
+    # Erosion increase green color area
     dilation = cv2.dilate(mask, kernel_ellipse, iterations=1)
     median = cv2.medianBlur(dilation, 5)
     ret, thresh = cv2.threshold(median, 127, 255, 0)
