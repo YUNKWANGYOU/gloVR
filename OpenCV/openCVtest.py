@@ -13,8 +13,6 @@ import threading
 UDP_IP = "127.0.0.1"
 UDP_PORT = 5065
 
-backstate = 0
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Open Camera object
@@ -52,14 +50,6 @@ cxcyCount2 = 0
 
 print("통신성공! ")
 while (1):
-
-    if backstate == 1 :
-        cv2.destroyAllWindows()
-        back = cv2.waitKey(0)
-        if back == 69 or back == 101:
-            break
-
-
     # Capture frames from the camera
     ret, frame = cap.read()
     ret2, frame2 = cap2.read()
@@ -285,14 +275,12 @@ while (1):
     # Print execution time
     # print time.time()-start_time
 
-    cz = 1/(cx2-cx4)
-    cz = cz*10000
-    cz = -cz
+    cz = cx4
 
     # close the output video by pressing 'ESC'
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
-        backstate = 1
+        break
 
     try:
         sock.sendto((str(cx2)+","+str(cy2)+","+str(cz)).encode(), (UDP_IP, UDP_PORT) )
