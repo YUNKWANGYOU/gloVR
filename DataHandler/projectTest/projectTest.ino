@@ -100,6 +100,7 @@ void getYPR() {
  // .
  // .
  // .
+ test.RotateServo();
  }
 
  // reset interrupt flag and get INT_STATUS byte
@@ -112,6 +113,7 @@ void getYPR() {
  // check for overflow (this should never happen unless our code is too inefficient)
  if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
  // reset so we can continue cleanly
+ test.RotateServo();
  mpu.resetFIFO();
  Serial.println(F("FIFO overflow!"));
 
@@ -207,21 +209,23 @@ void loop()
 
   test.MakeVibe();
 
-  //플로터 출력을 위한 임시 코드
-  int data0 = *(flexData+0);
-  int data1 = *(flexData+1);
-  int data2 = *(flexData+2);
-  int data3 = *(flexData+3);
-  int data4 = *(flexData+4);
-  Serial.print(data0);
-  Serial.print(' '); 
-  Serial.print(data1); 
-  Serial.print(' ');
-  Serial.print(data2); 
-  Serial.print(' ');
-  Serial.print(data3); 
-  Serial.print(' ');
-  Serial.println(data4); 
- 
+//  //플로터 출력을 위한 임시 코드
+//  int data0 = *(flexData+0);
+//  int data1 = *(flexData+1);
+//  int data2 = *(flexData+2);
+//  int data3 = *(flexData+3);
+//  int data4 = *(flexData+4);
+//  Serial.print(data0);
+//  Serial.print(' '); 
+//  Serial.print(data1); 
+//  Serial.print(' ');
+//  Serial.print(data2); 
+//  Serial.print(' ');
+//  Serial.print(data3); 
+//  Serial.print(' ');
+//  Serial.println(data4); 
+// 
+//
+//  flexData = test.GetFlexData();
   delay(5);
 }
