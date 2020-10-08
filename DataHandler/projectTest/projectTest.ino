@@ -47,10 +47,12 @@ void InitMPU(){
   devStatus = mpu.dmpInitialize();
 
   // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(220);
-  mpu.setYGyroOffset(76);
-  mpu.setZGyroOffset(-85);
-  mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
+  mpu.setXGyroOffset(131);
+  mpu.setYGyroOffset(-56);
+  mpu.setZGyroOffset(-39);
+  mpu.setXAccelOffset(-789);
+  mpu.setYAccelOffset(-379);
+  mpu.setZAccelOffset(910); // 1688 factory default for my test chip
 
   // make sure it worked (returns 0 if so)
   if (devStatus == 0) {
@@ -205,7 +207,6 @@ void loop()
 
   test.MakeVibe();
 
-  /*
   //플로터 출력을 위한 임시 코드
   int data0 = *(flexData+0);
   int data1 = *(flexData+1);
@@ -221,11 +222,6 @@ void loop()
   Serial.print(data3); 
   Serial.print(' ');
   Serial.println(data4); 
-
-  int i=0;
-  for(i=0;i<5;i++){
-  mySerial.write(*(flexData+i));
-  }
-  */
+ 
   delay(5);
 }

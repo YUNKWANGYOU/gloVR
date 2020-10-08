@@ -91,7 +91,7 @@ void DataHandler::FiltFlexData() {
 
 	for (int i = 0; i < 5; i++) {
 		filteredValue[i] = filteredValue[i] * (1 - alpha) + flexValueArr[i] * alpha; //���� ����
-		delay(10);
+		delay(1);
 
 		// (50~110 degree)  // max min 
 		if (filteredValue[i] <= flexMin[i]) filteredValue[i] = flexMin[i];
@@ -137,7 +137,6 @@ void DataHandler::ReceiveData() {
 
 	while(mySerial.available() > 0 && newData == false){
 		rc = mySerial.read();
-		Serial.println(rc);
 
 		if(recvInProgress == true){
 			if(rc != endMarker){
