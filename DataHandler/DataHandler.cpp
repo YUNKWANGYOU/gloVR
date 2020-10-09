@@ -8,8 +8,8 @@
 
 
 DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
-	pinMode(rxPin, INPUT);
-	pinMode(txPin, OUTPUT);
+	// pinMode(rxPin, INPUT);
+	// pinMode(txPin, OUTPUT);
 	mySerial.begin(9600);
 }
 
@@ -55,6 +55,7 @@ void DataHandler::InitVibe(){
 	pinMode(vibePin,OUTPUT);
 	vibeState = false;
 	vibeNum = 0;
+	analogWrite(vibePin,0);
 }
 
 /*
@@ -78,6 +79,15 @@ uint8_t* DataHandler::GetFlexData() {
 	flexValueArr[2] = analogRead(flex2Pin); 
 	flexValueArr[3] = analogRead(flex3Pin); 
 	flexValueArr[4] = analogRead(flex4Pin); 
+
+	// Serial.print("flex Value : ");
+	// Serial.print(flexValueArr[0]);
+	// Serial.print(flexValueArr[1]);
+	// Serial.print(flexValueArr[2]);
+	// Serial.print(flexValueArr[3]);
+	// Serial.print(flexValueArr[4]);
+	// Serial.println();
+
 
 	FiltFlexData();
 
@@ -132,8 +142,6 @@ void DataHandler::SendData(uint8_t * flexData, float * ypr) {
 void DataHandler::ReceiveData() {
 	// unityToArduinoDataArray
 	int i=0;
-	Serial.print("new Data : ");
-	Serial.println(newData);
 
 	while(mySerial.available() > 0 && newData == false){
 		rc = mySerial.read();
@@ -212,11 +220,11 @@ void DataHandler::RotateServo() {
 
 void DataHandler::MakeVibe(){
 	if(vibeState){
-		analogWrite(vibePin,0);
+		analogWrite(vibePin,255);
 		vibeNum += 1;
 	}
 	else{
-		analogWrite(vibePin,255);
+		analogWrite(vibePin,0);
 	}
 
 	if(vibeNum > vibeDuration){

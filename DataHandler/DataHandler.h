@@ -26,7 +26,7 @@
 	#define servo4Pin 7
 
 	//vibe moter pin number
-	#define vibePin 9
+	#define vibePin 10
 	#define vibeDuration 10
 
 	//define data len
@@ -39,12 +39,12 @@ public:
 	DataHandler(uint8_t BluetoothRxPin, uint8_t BluetoothTxPin);
 	Servo servoArr[5];
 
-	float alpha;
+	float alpha;                                      
 	uint16_t filteredValue[5];
 	uint8_t angleValue[5] = {0,};
 	uint16_t flexValueArr[5];
-	uint16_t flexMax[5] = { 830, 740, 900, 790, 890 };
-	uint16_t flexMin[5] ={ 710, 460, 710, 510, 740 };
+	uint16_t flexMax[5] = { 890, 800, 890, 750, 820 };
+	uint16_t flexMin[5] ={ 730, 550, 730, 520, 760 };
 
 	uint8_t vibeNum = 0;
 	bool vibeState = false;
