@@ -9,8 +9,8 @@ global status
 def nothing():
     pass
 
-# Low Pass Filter
-def LPF(a,b):
+# Median Filter
+def MF(a,b):
     c = a*0.5 + b*0.5
     return int(c)
 
@@ -107,7 +107,7 @@ def detectHand() :
     kernel_square2 = np.ones((11, 11), np.uint8)
     kernel_ellipse2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
 
-    # Erosion increase green color area
+    # Dialtion green color area
     dilation = cv2.dilate(mask, kernel_ellipse, iterations=1)
     median = cv2.medianBlur(dilation, 5)
     ret, thresh = cv2.threshold(median, 127, 255, 0)
@@ -210,9 +210,7 @@ def detectHand() :
             cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
 
             cx2 = cx
-            cx2 = LPF(cx2,cx)
             cy2 = cy
-            cy2 = LPF(cy2,cy)
 
             cxcyCount = cxcyCount+1
         # 두 번째 부터 이전 값 저장하고 새로들어오는값이랑 계산해서 필터
@@ -221,8 +219,8 @@ def detectHand() :
             cy2 = cy
             cx = int(moments['m10'] / moments['m00'])  # cx = M10/M00
             cy = int(moments['m01'] / moments['m00'])  # cy = M01/M00
-            cx2 = LPF(cx2,cx)
-            cy2 = LPF(cy2,cy)
+            cx2 = MF(cx2,cx)
+            cy2 = MF(cy2,cy)
 
     if moments2['m00'] != 0:
         # 맨 처음에는 이전의 값을 같은 값으로 넣어주기
@@ -232,9 +230,7 @@ def detectHand() :
             cy3 = int(moments2['m01'] / moments2['m00'])  # cy = M01/M00
 
             cx4 = cx3
-            cx4 = LPF(cx4,cx3)
             cy4 = cy3
-            cy4 = LPF(cy4,cy3)
 
             cxcyCount = cxcyCount+1
         # 두 번째 부터 이전 값 저장하고 새로들어오는값이랑 계산해서 필터
@@ -243,10 +239,10 @@ def detectHand() :
             cy4 = cy3
             cx3 = int(moments2['m10'] / moments2['m00'])  # cx = M10/M00
             cy3 = int(moments2['m01'] / moments2['m00'])  # cy = M01/M00
-            cx4 = LPF(cx4,cx3)
-            cy4 = LPF(cy4,cy3)
+            cx4 = MF(cx4,cx3)
+            cy4 = MF(cy4,cy3)
 
-    centerMass = (cx2, cy2)
+    centerMass = (cx2,cy2)
     centerMass2 = (cx4,cy4)
 
     # Draw center mass
