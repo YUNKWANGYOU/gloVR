@@ -271,36 +271,42 @@ def detectHand() :
 
 if __name__ == '__main__':
 
-    global status
 
-    # Receive initial status form Unity
-    status,addr = unityToPy.recvfrom(200)
-
-    udp = UDPHandler()
-    udp.start()
 
     global cxcyCount
     global cxcyCount2
     global cx,cx2,cx3,cx4
     global cy,cy2,cy3,cy4
+    global status
 
     cx,cx2,cx3,cx4 = 0,0,0,0
     cy,cy2,cy3,cy4 = 0,0,0,0
     cxcyCount = 0
     cxcyCount2 = 0
+    status = 0
 
     while 1 :
 
-        # Starting or Ending OpenCV
-        if list(status) == [115]: #START
-            detectHand()
-        elif list(status) == [49]: #END
+
+        K = cv2.waitKey(5) & 0xFF
+        if K == 97 or K == 65 :
+            status = 1
+        elif K == 98 or K == 66 :
+            status = 2
+        elif K == 99 or K == 67 :
+            status = 3
+        else:
             pass
 
-        # Press ESC button when you want to force quit opencv program
-        stop = ESC()
-        if stop == -1 :
+
+
+        if status == 1 :
+            detectHand()
+        elif status == 2 :
+            pass
+        elif status == 3 :
             break
+
 
     cap.release()
     cap2.release()
