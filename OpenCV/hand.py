@@ -296,6 +296,8 @@ if __name__ == '__main__':
             detectHand()
         elif list(status) == [49]: #END
             pass
+        elif list(status) == [101]: #END
+            break
 
         # Press ESC button when you want to force quit opencv program
         stop = ESC()
