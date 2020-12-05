@@ -26,7 +26,7 @@
 	#define servo4Pin 7
 
 	//vibe moter pin number
-	#define vibePin 10
+	#define vibePin 12
 	#define vibeDuration 10
 
 	//define data len
@@ -43,8 +43,8 @@ public:
 	uint16_t filteredValue[5];
 	uint8_t angleValue[5] = {0,};
 	uint16_t flexValueArr[5];
-	uint16_t flexMax[5] = { 890, 800, 890, 750, 820 };
-	uint16_t flexMin[5] ={ 730, 550, 730, 520, 760 };
+	uint16_t flexMax[5] = { 880, 800, 820, 920, 920 };
+	uint16_t flexMin[5] ={ 754, 587, 648, 815, 800 };
 
 	uint8_t vibeNum = 0;
 	bool vibeState = false;
@@ -77,7 +77,7 @@ public:
 	void FiltFlexData();
 	
 	//Send and Receive Data
-	void SendData(uint8_t * flexData, float * ypr);
+	void SendData(uint8_t * flexData, uint8_t * teapotPacket); 
 	void ReceiveData();
 
 	//Rotate

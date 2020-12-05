@@ -8,8 +8,6 @@
 
 
 DataHandler::DataHandler(uint8_t rxPin, uint8_t txPin) : mySerial(rxPin, txPin){
-	// pinMode(rxPin, INPUT);
-	// pinMode(txPin, OUTPUT);
 	mySerial.begin(9600);
 }
 
@@ -40,15 +38,22 @@ void DataHandler::FilterDeg(float alpha) {
 
 void DataHandler::InitServo() {
 	
-	servoArr[0].attach(servo0Pin);
-	servoArr[1].attach(servo1Pin);
-	servoArr[2].attach(servo2Pin);
+	servoArr[0].attach(servo0Pin); //엄지
+	servoArr[1].attach(servo1Pin); //검지
+	servoArr[2].attach(servo2Pin); 
 	servoArr[3].attach(servo3Pin);
-	servoArr[4].attach(servo4Pin);
+	servoArr[4].attach(servo4Pin); //새끼
 
-	for (int i = 0; i < 5; i++) {
-		servoArr[i].write(0);
-	}
+	// for (int i = 0; i < 5; i++) {
+	// 	servoArr[i].write(0);
+	// }
+
+	servoArr[0].write(150);
+	servoArr[1].write(150);
+	servoArr[2].write(150);
+	servoArr[3].write(10);
+	servoArr[4].write(10);
+
 }
 
 void DataHandler::InitVibe(){
@@ -57,20 +62,6 @@ void DataHandler::InitVibe(){
 	vibeNum = 0;
 	analogWrite(vibePin,0);
 }
-
-/*
-void  DataHandler::GetFlexRange() {
-	delay(2000);
-	*flexMax = *filteredValue;
-	*flexMin = *filteredValue;
-	for (int i = 0; i < 5000; i++) {
-		for (int j = 0; j < 5; j++) {
-			flexMax[j] = max(flexMax[j], filteredValue[j]);
-			flexMin[j] = min(flexMin[j], filteredValue[j]);
-		}
-	}
-}
-*/
 
 uint8_t* DataHandler::GetFlexData() {
 	
@@ -113,10 +104,9 @@ void DataHandler::FiltFlexData() {
 
 }
 
-void DataHandler::SendData(uint8_t * flexData, float * ypr) {
+void DataHandler::SendData(uint8_t * flexData, uint8_t * teapotPacket) {
 	// arduinoToUnityDataArray�� �������� ����� ���ؼ� ����.
 
-	char pChrBuffer[6];
   	int i=0;
 
 	mySerial.write(200);
@@ -124,18 +114,9 @@ void DataHandler::SendData(uint8_t * flexData, float * ypr) {
 	for(i=0;i<5;i++){
 	mySerial.write(flexData[i]);
 	}
-  
-	dtostrf(ypr[0] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-	mySerial.write(pChrBuffer);
-	mySerial.write('\n');
-	dtostrf(ypr[1] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-	mySerial.write(pChrBuffer);
-	mySerial.write('\n');
-	dtostrf(ypr[2] , 5, 2, pChrBuffer);  // 5 : width, 2 : precision
-	mySerial.write(pChrBuffer);
-	mySerial.write('\n');
-	
-	mySerial.write(201);
+
+	mySerial.write(teapotPacket, 14);
+
 }
 
 
@@ -178,22 +159,6 @@ void DataHandler::ReceiveData() {
 			recvInProgress = true;
 		}
 	}
-
-	// if(mySerial.available()){
-	// 	String recvData = mySerial.readStringUntil('\n');
-
-	// 	if(recvData[0] == 's'){
-
-	// 		for(i=0;i<7;i++){
-	// 			unityToArduinoDataArray[i] = recvData[i];
-	// 			if(recvData[i] == 'e'){
-	// 				break;
-	// 			}
-	// 		}
-	// 		return true;
-	// 	}
-	// }
-	// return false;
 }
 
 void DataHandler::RotateServo() {
@@ -201,19 +166,89 @@ void DataHandler::RotateServo() {
 
 	int i=0;
 
-	for(i=0;i<5;i++){
-		if (unityToArduinoDataArray[i] == '0') {
-		servoArr[i].write(0);
-		}
-		else if (unityToArduinoDataArray[i] == '1') {
-			servoArr[i].write(60);
-		}
-		else if (unityToArduinoDataArray[i] == '2') {
-			servoArr[i].write(120);
-		}
-		else if (unityToArduinoDataArray[i] == '3') {
-			servoArr[i].write(150);
-		}
+	// for(i=0;i<5;i++){
+	// 	if (unityToArduinoDataArray[i] == '0') {
+	// 	servoArr[i].write(0);
+	// 	}
+	// 	else if (unityToArduinoDataArray[i] == '1') {
+	// 		servoArr[i].write(60);
+	// 	}
+	// 	else if (unityToArduinoDataArray[i] == '2') {
+	// 		servoArr[i].write(120);
+	// 	}
+	// 	else if (unityToArduinoDataArray[i] == '3') {
+	// 		servoArr[i].write(150);
+	// 	}
+	// }
+
+	//새끼
+	if (unityToArduinoDataArray[0] == '0') {
+		servoArr[4].write(10);
+	}
+	else if (unityToArduinoDataArray[0] == '1') {
+		servoArr[4].write(60);
+	}
+	else if (unityToArduinoDataArray[0] == '2') {
+		servoArr[4].write(120);
+	}
+	else if (unityToArduinoDataArray[0] == '3') {
+		servoArr[4].write(150);
+	}
+
+	//약지
+	if (unityToArduinoDataArray[1] == '0') {
+		servoArr[3].write(10);
+	}
+	else if (unityToArduinoDataArray[1] == '1') {
+		servoArr[3].write(60);
+	}
+	else if (unityToArduinoDataArray[1] == '2') {
+		servoArr[3].write(120);
+	}
+	else if (unityToArduinoDataArray[1] == '3') {
+		servoArr[3].write(150);
+	}
+
+	//중지
+	if (unityToArduinoDataArray[2] == '0') {
+		servoArr[2].write(150);
+	}
+	else if (unityToArduinoDataArray[2] == '1') {
+		servoArr[2].write(120);
+	}
+	else if (unityToArduinoDataArray[2] == '2') {
+		servoArr[2].write(60);
+	}
+	else if (unityToArduinoDataArray[2] == '3') {
+		servoArr[2].write(0);
+	}
+
+	//검지
+	if (unityToArduinoDataArray[3] == '0') {
+		servoArr[1].write(150);
+	}
+	else if (unityToArduinoDataArray[3] == '1') {
+		servoArr[1].write(120);
+	}
+	else if (unityToArduinoDataArray[3] == '2') {
+		servoArr[1].write(60);
+	}
+	else if (unityToArduinoDataArray[3] == '3') {
+		servoArr[1].write(0);
+	}
+
+	//엄지
+	if (unityToArduinoDataArray[4] == '0') {
+		servoArr[0].write(150);
+	}
+	else if (unityToArduinoDataArray[4] == '1') {
+		servoArr[0].write(120);
+	}
+	else if (unityToArduinoDataArray[4] == '2') {
+		servoArr[0].write(60);
+	}
+	else if (unityToArduinoDataArray[4] == '3') {
+		servoArr[0].write(0);
 	}
 
 }
